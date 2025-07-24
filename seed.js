@@ -19,15 +19,14 @@ async function seed() {
       db.collection('users').deleteMany({}),
     ]);
 
-    // Дані
     const users = [
       { _id: 1, name: 'John Doe', email: 'john@example.com' },
       { _id: 2, name: 'Alice Smith', email: 'alice@example.com' }
     ];
 
     const listings = [
-      { _id: 1, title: 'Cozy Apartment in Kyiv', price: 50, location: 'Kyiv', hostId: 1 },
-      { _id: 2, title: 'Modern Loft in Lviv', price: 75, location: 'Lviv', hostId: 2 }
+      { _id: 1, title: 'Cozy Apartment in Kyiv', price: 50, location: 'Kyiv', hostId: 1, imageUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg' },
+      { _id: 2, title: 'Modern Loft in Lviv', price: 75, location: 'Lviv', hostId: 2, imageUrl: 'https://a0.muscache.com/im/pictures/miso/Hosting-1219311850850748565/original/eff02a66-fda2-4c8e-8319-407adac6166d.jpeg?im_w=720' }
     ];
 
     const bookings = [
