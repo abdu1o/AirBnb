@@ -15,7 +15,7 @@ export default function Header() {
       <div className={styles.actions}>
         <button>Запропонувати житло</button>
         <button><img src="/icons/menu.svg" alt="menu"/></button>
-        <button><img src="/icons/user.svg" alt="user"/></button>
+        <a href="/profile"><img src="/icons/user.svg" alt="user"/></a>
       </div>
     </header>
   );

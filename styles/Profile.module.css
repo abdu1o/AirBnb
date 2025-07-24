@@ -1,0 +1,183 @@
+.page {
+  background: #fafafa;
+  min-height: 100vh;
+}
+
+.main {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* Header sections wrapper */
+.sections {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+
+/* ProfileHeader */
+.profileHeader {
+  text-align: center;
+}
+
+.avatarWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar {
+  width: 140px;
+  height: 140px;
+  background: #6b5e4b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #fff;
+}
+
+.avatarButton {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.title {
+  font-size: 1.75rem;
+  margin-top: 1rem;
+  color: #333;
+}
+
+.description {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #555;
+}
+
+.link {
+  color: #6b5e4b;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ProfileFields grid */
+.fieldGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.field {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.5rem;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 0.875rem;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.fieldInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  padding: 0.25rem 0;
+  color: #333;
+  background: transparent;
+}
+
+/* Info section */
+.infoSection {
+  margin-top: 2rem;
+  grid-column: span 2;
+  /* border-radius: 30px; */
+  /* border: 1px dashed black; */
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 20px;
+  /* border: 1px solid #ccc; */
+  border: none;
+  border-radius: 0.5rem;
+  resize:none;
+  padding: 0.75rem;
+  font-size: 1rem;
+  color: #333;
+  /* margin-bottom: 0.75rem; */
+  padding-bottom: 0.75rem;
+  padding-left: 0;
+  overflow: hidden;
+  background-color: inherit;
+}
+
+.textarea:active {
+    border: none;
+}
+
+.linkButton {
+  /* padding-left: 1%; */
+  background: none;
+  border: none;
+  color: #292621;
+  font-weight: bold;
+  text-decoration: underline;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+/* Interests section */
+.interestsSection {
+  margin-top: 2rem;
+  grid-column: span 2;
+}
+
+.sectionDesc {
+  font-size: 0.875rem;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
+.interestsList {
+  display: flex;
+  gap: 1rem;
+}
+
+.interestButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px dashed #6b5e4b;
+  border-radius: 9999px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b5e4b;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .sections {
+    grid-template-columns: 1fr;
+  }
+}

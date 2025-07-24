@@ -3,11 +3,18 @@ import CategoryChips from '../components/CategoryChips';
 import FilterControls from '../components/FilterControls';
 import ListingGrid from '../components/ListingGrid';
 import MapToggleButton from '../components/MapToggleButton';
+import Additional from '../components/Additional';
+import AppendData from '../components/AppendData';
+import Footer from '../components/Footer';
 import { getListings } from '../lib/db';
 import styles from '../styles/Home.module.css';
 
 
 export default function Home({ listings }) {
+  const handleAppendClick = () => {
+    // Підвантажити додаткові дані
+    console.log('Показати більше...');
+  };
   return (
     <>
       <Header />
@@ -16,6 +23,9 @@ export default function Home({ listings }) {
       
       {/* <MapToggleButton /> */}
       <ListingGrid data={listings} />
+      <AppendData onClick={handleAppendClick} />
+      <Additional />
+      <Footer />
     </>
   );
 }

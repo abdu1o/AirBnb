@@ -5,7 +5,7 @@
   justify-content: space-between;
   padding: 1rem 2rem;
   background-color: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .header .logo {
@@ -80,10 +80,11 @@
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 9999px;
-  padding: 0.5rem 0.5rem 0.5rem 0.75rem; /* уменьшили правый и левый внутренний отступ */
+  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+  /* уменьшили правый и левый внутренний отступ */
   max-width: 800px;
   width: 100%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .inputField {
@@ -114,7 +115,8 @@
   height: 2.5rem;
   border: none;
   border-radius: 50%;
-  margin-left: 0.5rem; /* только отступ слева */
+  margin-left: 0.5rem;
+  /* только отступ слева */
   cursor: pointer;
 }
 
@@ -146,20 +148,23 @@
   background: #fff;
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
 }
+
 .listingCard:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .listingCard .imageWrapper {
   position: relative;
   width: 100%;
-  height: 12rem; /* 48 */
+  height: 12rem;
+  /* 48 */
 }
+
 .listingCard img {
   object-fit: cover;
   width: 100%;
@@ -203,8 +208,193 @@
 
 /* --- Responsive tweaks --- */
 @media (max-width: 640px) {
-  .header, .categoryChips, .filterControls, .listingGrid {
+
+  .header,
+  .categoryChips,
+  .filterControls,
+  .listingGrid {
     padding-left: 1rem;
     padding-right: 1rem;
   }
+}
+
+/* Контейнер для центрування контенту */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* === AppendData «Показати більше» === */
+.appendWrapper {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.appendButton {
+  background-color: #222;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.appendButton:hover {
+  background-color: #444;
+}
+
+/* === Additional Section === */
+.additionalSection {
+  width: 100%;
+  padding: 2rem;
+  background-color: #f5f2ec;
+}
+
+.additionalTitle {
+  grid-template-columns: repeat(auto-fill, 100px);
+  padding-inline: 10%;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #444;
+}
+
+.tabNav {
+  padding-inline: 10%;
+  display: flex;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, 200px);
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+.tabLink {
+  color: #666;
+  text-decoration: none;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  position: relative;
+  padding-bottom: 0.25rem;
+}
+
+.tabLink:hover,
+.tabLink:focus {
+  color: #222;
+}
+
+.tabUnderline {
+  height: 2px;
+  width: 50px;
+  background: #222;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transition: left 0.2s;
+}
+
+.suggestionList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem 5.75rem;
+  margin-top: 1rem;
+  list-style: none;
+  padding: 0;
+  padding-inline: 10%;
+}
+
+.suggestionItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: #444;
+}
+
+.moreItem {
+  display: flex;
+  align-items: top;
+  justify-content: left;
+}
+
+.moreInline {
+  background: none;
+  border: 1px solid #888;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  padding-block: 0.275rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.moreInline:hover {
+  background: #e0e0e0;
+}
+
+/* === Footer === */
+.footer {
+  
+  border-top: 1px solid #ddd;
+  padding: 2rem;
+  background: #fdfcf9;
+  color: #555;
+}
+
+.footerCols {
+  padding-inline: 10%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem 5.75rem;
+  margin-bottom: 2rem;
+}
+
+.footerCols h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.footerCols ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.footerCols a {
+  color: #555;
+  text-decoration: none;
+}
+
+.footerCols a:hover {
+  text-decoration: underline;
+}
+
+.footerBottom {
+  padding-inline: 10%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+  gap: 1rem;
+}
+
+.footerNav,
+.footerSocial {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footerSocial a {
+  font-size: 1rem;
 }
