@@ -4,7 +4,7 @@ export async function GET() {
   try {
     const client = await clientPromise;
     const db = client.db('airbnb');
-    const listings = await db.collection('listings').find({}).limit(10).toArray();
+    const listings = await db.collection('listings').find({}).toArray();
 
     return Response.json(listings);
   } catch (err) {
