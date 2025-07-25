@@ -25,13 +25,16 @@ async function seed() {
     ];
 
     const listings = [
-      { _id: 1, title: 'Cozy Apartment in Kyiv', price: 50, location: 'Kyiv', hostId: 1, imageUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg' },
-      { _id: 2, title: 'Modern Loft in Lviv', price: 75, location: 'Lviv', hostId: 2, imageUrl: 'https://a0.muscache.com/im/pictures/miso/Hosting-1219311850850748565/original/eff02a66-fda2-4c8e-8319-407adac6166d.jpeg?im_w=720' }
+      { _id: 1, title: 'Odesa, Ukraine', price: 50, location: 'Біля моря', dateFrom: '2025-07-29', dateTo: '2025-08-01', hostId: 1, rating: 5.00, imageUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg' },
+      { _id: 2, title: 'Kyiv, Ukraine', price: 99, location: 'Близько до центру', dateFrom: '2025-07-25', dateTo: '2025-07-28', hostId: 2, rating: 4.45, imageUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg' },
+      { _id: 3, title: 'Lviv, Ukraine', price: 105, location: 'Близько до центру', dateFrom: '2025-07-25', dateTo: '2025-07-28', hostId: 2, rating: 3.88, imageUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg' },
+      { _id: 4, title: 'Poltava, Ukraine', price: 35, location: 'Близько до центру', dateFrom: '2025-07-25', dateTo: '2025-07-28', hostId: 2, rating: 4.99, imageUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg' },
+      { _id: 5, title: 'Odesa, Ukraine', price: 12, location: 'Біля моря', dateFrom: '2025-07-25', dateTo: '2025-07-28', hostId: 2, rating: 2.32, imageUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg' },
     ];
 
     const bookings = [
-      { userId: 1, listingId: 2, dateFrom: '2025-07-25', dateTo: '2025-07-28' },
-      { userId: 2, listingId: 1, dateFrom: '2025-07-29', dateTo: '2025-08-01' }
+      { userId: 1, listingId: 2},
+      { userId: 2, listingId: 1}
     ];
 
     const favorites = [
