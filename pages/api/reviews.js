@@ -1,16 +1,11 @@
-import clientPromise from "../../lib/mongodb";
+import { getReviews } from "../../lib/reviews";
 
 export default async function handler(req, res) {
-  if (req.method === 'GET') {
-    try {
-      const client = await clientPromise;
-      const db = client.db('airbnb');
-      const data = await db.collection('reviews').find({}).toArray();
-      res.status(200).json(data);
-    } catch (err) {
-      res.status(500).json({ error: 'DB error' });
-    }
-  } else {
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+  try {
+    const reviews = await getReviews(2); //передаем id нужного листинга
+    res.status(200).json(reviews);
+  } catch (error) {
+    console.error("Error getting reviews:", error);
+    res.status(500).json({ error: "Server error: " });
   }
 }

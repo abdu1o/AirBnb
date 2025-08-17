@@ -6,7 +6,7 @@ import MapToggleButton from '../components/MapToggleButton';
 import Additional from '../components/Additional';
 import AppendData from '../components/AppendData';
 import Footer from '../components/Footer';
-import { getListings } from '../lib/db';
+import { getListings } from '../lib/listings';
 import styles from '../styles/Home.module.css';
 
 
