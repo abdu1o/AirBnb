@@ -1,16 +1,8 @@
 import clientPromise from "../../lib/mongodb";
+import { getListings } from "../../lib/listings";
 
 export default async function handler(req, res) {
-  if (req.method === 'GET') {
-    try {
-      const client = await clientPromise;
-      const db = client.db('airbnb');
-      const data = await db.collection('listings').find({}).toArray();
-      res.status(200).json(data);
-    } catch (err) {
-      res.status(500).json({ error: 'DB error' });
-    }
-  } else {
-    res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
+  const { skip = 0, limit = 10 } = req.query;
+  const listings = await getListings(Number(skip), Number(limit));
+  res.status(200).json(listings);
 }
