@@ -11,12 +11,18 @@ import { getListings } from '../lib/listings';
 export default function Home({ initialListings }) {
   const [listings, setListings] = useState(initialListings);
   const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(initialListings.length === 10);
 
   const handleAppendClick = async () => {
     const res = await fetch(`/api/listings?skip=${page * 10}&limit=10`);
     const newListings = await res.json();
+
     setListings(prev => [...prev, ...newListings]);
     setPage(prev => prev + 1);
+
+    if (newListings.length < 10) {
+      setHasMore(false);
+    }
   };
 
   return (
@@ -25,7 +31,7 @@ export default function Home({ initialListings }) {
       <FilterControls />
       <CategoryChips />
       <ListingGrid data={listings} />
-      <AppendData onClick={handleAppendClick} />
+      {hasMore && <AppendData onClick={handleAppendClick} />}
       <Additional />
       <Footer />
     </>
