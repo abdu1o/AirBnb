@@ -4,10 +4,8 @@ import { useState, useEffect, useMemo } from 'react';
 import styles from '../styles/Home.module.css';
 import { FiSearch } from 'react-icons/fi';
 import Modal from './Modal';
-import WhereModal from './WhereModal'; // <-- новый модал
+import WhereModal from './WhereModal';
 import WhoModal from './WhoModal';
-
-
 
 function formatDateForInput(iso) {
   if (!iso) return '';
@@ -15,82 +13,83 @@ function formatDateForInput(iso) {
 }
 
 export default function FilterControls() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [whereOpen, setWhereOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
+  // --- Состояния с дефолтными значениями для SSR ---
   const [dateRange, setDateRange] = useState(null);
-  const [whereSelected, setWhereSelected] = useState(null); // { label, lat, lon }
-
-  // В component state:
-  const [whoOpen, setWhoOpen] = useState(false);
+  const [whereSelected, setWhereSelected] = useState(null);
   const [whoSelected, setWhoSelected] = useState(null);
 
-  useEffect(() => {
-    setHydrated(true);
-    try {
-      const raw = localStorage.getItem('hf_dateRange');
-      if (raw) setDateRange(JSON.parse(raw));
-    } catch (e) { /* ignore */ }
+  const [modalOpen, setModalOpen] = useState(false);
+  const [whereOpen, setWhereOpen] = useState(false);
+  const [whoOpen, setWhoOpen] = useState(false);
 
+  // --- Читаем localStorage только на клиенте ---
+  useEffect(() => {
     try {
-      const w = localStorage.getItem('hf_where');
-      if (w) setWhereSelected(JSON.parse(w));
-    } catch (e) { /* ignore */ }
+      const rawDate = localStorage.getItem('hf_dateRange');
+      if (rawDate) setDateRange(JSON.parse(rawDate));
+
+      const rawWhere = localStorage.getItem('hf_where');
+      if (rawWhere) setWhereSelected(JSON.parse(rawWhere));
+
+      const rawWho = localStorage.getItem('hf_who');
+      if (rawWho) setWhoSelected(JSON.parse(rawWho));
+    } catch (e) {
+      console.error('Failed to parse localStorage', e);
+    }
+    setHydrated(true);
   }, []);
 
+  // --- Сохраняем изменения в localStorage и на сервере ---
   useEffect(() => {
     if (!hydrated) return;
-    try {
-      if (dateRange) localStorage.setItem('hf_dateRange', JSON.stringify(dateRange));
-      else localStorage.removeItem('hf_dateRange');
-    } catch (e) { /* ignore */ }
-  }, [dateRange, hydrated]);
 
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      if (whereSelected) localStorage.setItem('hf_where', JSON.stringify(whereSelected));
-      else localStorage.removeItem('hf_where');
-      try {
-        const w = localStorage.getItem('hf_who');
-        if (w) setWhoSelected(JSON.parse(w));
-      } catch (e) { /* ignore */ }
-    } catch (e) { /* ignore */ }
-  }, [whereSelected, hydrated]);
+    const state = {
+      where: whereSelected || { selected: null, query: '' },
+      who: whoSelected || { adults: 1, children: 0, infants: 0, pets: 0 },
+      dateRange: dateRange || null,
+    };
 
-  useEffect(() => {
-    if (!hydrated) return;
     try {
-      if (whoSelected) localStorage.setItem('hf_who', JSON.stringify(whoSelected));
-      else localStorage.removeItem('hf_who');
-    } catch (e) { }
-  }, [whoSelected, hydrated]);
+      localStorage.setItem('hf_state', JSON.stringify(state));
+      localStorage.setItem('hf_dateRange', JSON.stringify(dateRange));
+      localStorage.setItem('hf_where', JSON.stringify(whereSelected));
+      localStorage.setItem('hf_who', JSON.stringify(whoSelected));
+      
+    } catch (e) {
+      console.error('Failed to save to localStorage', e);
+    }
+  
+    fetch('/api/searchState', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state),
+    });
+  }, [whereSelected, whoSelected, dateRange, hydrated]);
 
+  // --- Обработчики ---
   const handleSaveDates = (range) => setDateRange(range);
   const handleSaveWhere = (payload) => setWhereSelected(payload);
+  const handleSaveWho = (payload) => setWhoSelected(payload);
 
   const isCombined = dateRange && dateRange.type && dateRange.type !== 'range';
   const openModalSafe = () => { if (!hydrated) return; setModalOpen(true); };
-
+  const openWhere = () => { if (!hydrated) return; setWhereOpen(true); };
   const openWho = () => { if (!hydrated) return; setWhoOpen(true); };
-  const handleSaveWho = (payload) => setWhoSelected(payload);
 
   const modalKey = useMemo(() => {
     try { return dateRange ? JSON.stringify(dateRange) : 'empty'; }
     catch (e) { return 'empty'; }
   }, [dateRange]);
 
-  // handler for clicking "Куди"
-  const openWhere = () => {
-    if (!hydrated) return;
-    setWhereOpen(true);
-  };
+  // --- Не рендерим ничего на сервере ---
+  if (!hydrated) return null;
 
   return (
     <div className={styles.filterWrapper}>
       <div className={styles.searchBox}>
-        {/* "Куди" now opens WhereModal */}
+        {/* КУДИ */}
         <div
           role="button"
           tabIndex={0}
@@ -103,17 +102,11 @@ export default function FilterControls() {
 
         <div className={styles.separator} />
 
-        {/* Dates / When */}
-        {!hydrated ? (
-          <>
-            <input type="text" placeholder="Прибуття" className={styles.inputField} readOnly onClick={openModalSafe} />
-            <div className={styles.separator} />
-            <input type="text" placeholder="Виїзд" className={styles.inputField} readOnly onClick={openModalSafe} />
-          </>
-        ) : !isCombined ? (
+        {/* КОЛИ */}
+        {!isCombined ? (
           <>
             <div role="button" tabIndex={0} className={styles.inputField} onClick={openModalSafe}>
-              {dateRange && dateRange.type === 'range' && dateRange.start
+              {dateRange?.type === 'range' && dateRange.start
                 ? formatDateForInput(dateRange.start)
                 : 'Прибуття'}
             </div>
@@ -121,7 +114,7 @@ export default function FilterControls() {
             <div className={styles.separator} />
 
             <div role="button" tabIndex={0} className={styles.inputField} onClick={openModalSafe}>
-              {dateRange && dateRange.type === 'range' && dateRange.end
+              {dateRange?.type === 'range' && dateRange.end
                 ? formatDateForInput(dateRange.end)
                 : 'Виїзд'}
             </div>
@@ -138,7 +131,14 @@ export default function FilterControls() {
 
         <div className={styles.separator} />
 
-        <div role="button" tabIndex={0} className={styles.inputField} onClick={openWho} style={{ cursor: 'pointer' }}>
+        {/* ХТО */}
+        <div
+          role="button"
+          tabIndex={0}
+          className={styles.inputField}
+          onClick={openWho}
+          style={{ cursor: 'pointer' }}
+        >
           {whoSelected?.label || 'Хто'}
         </div>
 
@@ -147,26 +147,27 @@ export default function FilterControls() {
         </button>
       </div>
 
+      {/* Modals */}
       <Modal
         key={modalKey}
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         initialRange={dateRange}
-        onSave={(range) => { handleSaveDates(range); setModalOpen(false); }}
+        onSave={(range) => { handleSaveDates(range); setModalOpen(false); window.location.reload(); }}
       />
 
       <WhereModal
         isOpen={whereOpen}
         onClose={() => setWhereOpen(false)}
         initialWhere={whereSelected}
-        onSave={(w) => { handleSaveWhere(w); setWhereOpen(false); }}
+        onSave={(w) => { handleSaveWhere(w); setWhereOpen(false); window.location.reload(); }}
       />
 
       <WhoModal
         isOpen={whoOpen}
         onClose={() => setWhoOpen(false)}
         initialWho={whoSelected}
-        onSave={(w) => { handleSaveWho(w); setWhoOpen(false); }}
+        onSave={(w) => { handleSaveWho(w); setWhoOpen(false); window.location.reload(); }}
       />
     </div>
   );
