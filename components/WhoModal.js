@@ -1,4 +1,3 @@
-// app/components/WhoModal.js  (или ./components/WhoModal.js)
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,7 +11,6 @@ const OPTIONS = [
 ];
 
 export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
-  // defaults: adults 1, others 0
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
@@ -40,8 +38,8 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
     setter(value - 1);
   };
 
-  // For adults min should be 1
-  const decAdults = () => dec(setAdults, adults, 1); // will stop at 1
+  const decAdults = () => dec(setAdults, adults, 1);
+
   const makeLabel = () => {
     const parts = [];
     if (adults) parts.push(`Дорослі: ${adults}`);
@@ -51,11 +49,19 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
     return parts.length ? parts.join(' · ') : 'Хто';
   };
 
-  const handleSave = () => {
-    const payload = {
-      adults, children, infants, pets,
-      label: makeLabel()
-    };
+  const handleSave = async () => {
+    const payload = { adults, children, infants, pets, label: makeLabel() };
+
+    try {
+      await fetch('/api/searchState', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ who: payload }),
+      });
+    } catch (err) {
+      console.error('Ошибка сохранения who:', err);
+    }
+
     onSave(payload);
     onClose();
   };
@@ -72,7 +78,6 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
         <h3 style={{ textAlign: 'center', margin: '6px 0 14px' }}>Хто їде?</h3>
 
         <div style={{ display: 'flex', gap: 14 }}>
-          {/* left: options + hints */}
           <div style={{ flex: 1 }}>
             {OPTIONS.map(opt => (
               <div key={opt.key} style={{ padding: '8px 6px', display: 'flex', flexDirection: 'column' }}>
@@ -82,25 +87,14 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
             ))}
           </div>
 
-          {/* right: counters */}
           <div style={{ width: 220, display: 'flex', flexDirection: 'column', gap: 6 }}>
             {/* Adults */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ minWidth: 90 }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <button
-                  aria-label="Уменьшить взрослых"
-                  onClick={() => decAdults()}
-                  className={styles.chip}
-                  style={{ padding: '6px 10px' }}
-                >−</button>
+                <button onClick={decAdults} className={styles.chip} style={{ padding: '6px 10px' }}>−</button>
                 <div className={styles.countDisplay} style={{ minWidth: 36, textAlign: 'center', fontWeight: 600 }}>{adults}</div>
-                <button
-                  aria-label="Увеличить взрослых"
-                  onClick={() => inc(setAdults, adults)}
-                  className={styles.chip}
-                  style={{ padding: '6px 10px' }}
-                >+</button>
+                <button onClick={() => inc(setAdults, adults)} className={styles.chip} style={{ padding: '6px 10px' }}>+</button>
               </div>
             </div>
 
@@ -108,9 +102,9 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ minWidth: 90 }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <button aria-label="Уменьшить детей" onClick={() => dec(setChildren, children)} className={styles.chip} style={{ padding: '6px 10px' }}>−</button>
-                <div className={styles.countDisplay} style={{ minWidth: 36, textAlign: 'center', fontWeight: 600 }}>{children}</div>
-                <button aria-label="Увеличить детей" onClick={() => inc(setChildren, children)} className={styles.chip} style={{ padding: '6px 10px' }}>+</button>
+                <button onClick={() => dec(setChildren, children)} className={styles.chip} style={{ padding: '6px 10px' }}>−</button>
+                <div className={styles.countDisplay}>{children}</div>
+                <button onClick={() => inc(setChildren, children)} className={styles.chip} style={{ padding: '6px 10px' }}>+</button>
               </div>
             </div>
 
@@ -118,9 +112,9 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ minWidth: 90 }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <button aria-label="Уменьшить немовлят" onClick={() => dec(setInfants, infants)} className={styles.chip} style={{ padding: '6px 10px' }}>−</button>
-                <div className={styles.countDisplay} style={{ minWidth: 36, textAlign: 'center', fontWeight: 600 }}>{infants}</div>
-                <button aria-label="Увеличить немовлят" onClick={() => inc(setInfants, infants)} className={styles.chip} style={{ padding: '6px 10px' }}>+</button>
+                <button onClick={() => dec(setInfants, infants)} className={styles.chip}>−</button>
+                <div className={styles.countDisplay}>{infants}</div>
+                <button onClick={() => inc(setInfants, infants)} className={styles.chip}>+</button>
               </div>
             </div>
 
@@ -128,15 +122,15 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ minWidth: 90 }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <button aria-label="Уменьшить животных" onClick={() => dec(setPets, pets)} className={styles.chip} style={{ padding: '6px 10px' }}>−</button>
-                <div className={styles.countDisplay} style={{ minWidth: 36, textAlign: 'center', fontWeight: 600 }}>{pets}</div>
-                <button aria-label="Увеличить животных" onClick={() => inc(setPets, pets)} className={styles.chip} style={{ padding: '6px 10px' }}>+</button>
+                <button onClick={() => dec(setPets, pets)} className={styles.chip}>−</button>
+                <div className={styles.countDisplay}>{pets}</div>
+                <button onClick={() => inc(setPets, pets)} className={styles.chip}>+</button>
               </div>
             </div>
           </div>
         </div>
 
-        <div className={styles.modalFooter} style={{ marginTop: 12 }}>
+        <div className={styles.modalFooter}>
           <div style={{ flex: 1 }} />
           <button className={styles.chip} onClick={handleClear}>Очистити</button>
           <button className={styles.chip} onClick={handleSave}>Зберегти</button>
