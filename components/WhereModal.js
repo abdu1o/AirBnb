@@ -5,13 +5,6 @@ import styles from '../styles/Modals.module.css';
 import { feature } from 'topojson-client';
 import { geoMercator, geoPath } from 'd3-geo';
 
-/**
- * WhereModal — лёгкий SVG-рендерер карт, без react-simple-maps.
- * Props:
- *  - isOpen, onClose
- *  - initialWhere: { label, lat, lon } | null
- *  - onSave(selection)
- */
 export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
   const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
   const svgRef = useRef(null);
@@ -21,21 +14,18 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
 
-  // svg layout
   const width = 980;
   const height = 420;
   const margin = 10;
 
   useEffect(() => {
     if (!isOpen) return;
-    // load topojson once
     let cancelled = false;
     fetch(GEO_URL)
       .then(r => r.json())
       .then(t => {
         if (cancelled) return;
         setTopo(t);
-        // countries object name in this topojson is 'countries'
         const fc = feature(t, t.objects.countries || t.objects['countries-110m'] || t.objects['land']);
         setGeojson(fc);
       })
@@ -46,7 +36,6 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
   }, [isOpen]);
 
   useEffect(() => {
-    // sync initial selection when modal opens
     if (isOpen && initialWhere) setSelected(initialWhere);
     if (!isOpen) {
       setQuery('');
@@ -54,9 +43,7 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
     }
   }, [isOpen, initialWhere]);
 
-  // projection & path generator (recreated when geojson available)
   const { projection, pathGen } = useMemo(() => {
-    // center/scale heuristics — можно улучшить
     const proj = geoMercator()
       .fitSize([width - margin * 2, height - margin * 2], geojson || { type: 'FeatureCollection', features: [] })
       .precision(0.1);
@@ -64,7 +51,6 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
     return { projection: proj, pathGen: path };
   }, [geojson]);
 
-  // handle country click -> set label
   const onCountryClick = (featureObj) => {
     const name = featureObj.properties?.name || featureObj.properties?.NAME || 'Unknown';
     setSelected({ label: name, lat: null, lon: null });
@@ -72,7 +58,6 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
     setResults([]);
   };
 
-  // Nominatim forward search (simple, no debounce — можно добавить)
   const doSearch = async (q) => {
     if (!q || q.length < 2) { setResults([]); return; }
     try {
@@ -97,12 +82,22 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
     setSelected(r);
     setQuery(r.label);
     setResults([]);
-    // optionally scroll/zoom to the marker — not implemented here
   };
 
-  const saveAndClose = () => {
-    if (selected) onSave({ label: selected.label, lat: selected.lat || null, lon: selected.lon || null });
-    else onSave(null);
+  const saveAndClose = async () => {
+    const payload = selected ? { label: selected.label, lat: selected.lat || null, lon: selected.lon || null } : null;
+
+    try {
+      await fetch('/api/searchState', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ where: payload }),
+      });
+    } catch (err) {
+      console.error('Ошибка сохранения where:', err);
+    }
+
+    onSave(payload);
     onClose();
   };
 
@@ -136,7 +131,7 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
         )}
 
         <div style={{ width: '100%', height: height, overflow: 'hidden', borderRadius: 10, border: '1px solid rgba(0,0,0,0.06)' }}>
-          <svg ref={svgRef} width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet">
+          <svg ref={svgRef} width="100%" height="100%" viewBox={`0 0 {width} {height}`} preserveAspectRatio="xMidYMid meet">
             <g transform={`translate(${margin},${margin})`}>
               {geojson && geojson.features.map((f, i) => (
                 <path
@@ -151,9 +146,8 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
                 />
               ))}
 
-              {/* marker for selected city */}
               {selected && selected.lon && selected.lat && (() => {
-                const [x, y] = projection([parseFloat(selected.lon), parseFloat(selected.lat)]) || [0,0];
+                const [x, y] = projection([parseFloat(selected.lon), parseFloat(selected.lat)]) || [0, 0];
                 return (
                   <g transform={`translate(${x},${y})`}>
                     <circle r={6} fill="#1b79ff" stroke="#fff" strokeWidth={1.5} />
@@ -165,7 +159,7 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
           </svg>
         </div>
 
-        <div className={styles.modalFooter} style={{ marginTop: 12 }}>
+        <div className={styles.modalFooter}>
           <div style={{ flex: 1 }} />
           <button className={styles.chip} onClick={saveAndClose}>Зберегти</button>
         </div>
