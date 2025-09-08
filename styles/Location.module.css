@@ -1,0 +1,72 @@
+.locationSection {
+  margin-top: 28px;
+  margin-bottom: 28px;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #111;
+}
+
+.mapWrapper {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #eee;
+  position: relative;
+}
+
+/* HFU marker: wrapper class (applied to divIcon root) */
+.hfuDivIcon {
+  /* keep base transparent — content styled by inner element */
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+/* Inner circular HFU label inside the divIcon HTML */
+.hfuInner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #2b2b2b;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+  border: 3px solid rgba(255,255,255,0.06);
+  transform: translateY(0); /* adjust if needed */
+}
+
+/* Address block below map */
+.addressBlock {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 100%;
+}
+.addressTitle { font-weight: 700; color: #222; font-size: 0.95rem; }
+.addressShort { color: #666; font-size: 0.92rem; }
+.addressFull { color: #444; font-size: 0.92rem; margin-top: 8px; }
+
+.showMoreBtn {
+  background: transparent;
+  border: none;
+  color: #222;
+  font-weight: 700;
+  padding: 10px 0;
+  text-align: left;
+  cursor: pointer;
+  width: fit-content;
+}
+
+/* small screens */
+@media (max-width: 900px) {
+  .hfuInner { width: 40px; height: 40px; font-size: 0.8rem; }
+}

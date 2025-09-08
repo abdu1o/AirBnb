@@ -1,6 +1,7 @@
-
 :root {
   --gallery-height: 420px; /* или 360px, или 480px — на твой вкус */
+  --page-max-width: 1180px;
+  --page-padding: 16px;
 }
 
 /* global box-sizing safe for CSS Modules */
@@ -19,11 +20,11 @@
   padding-bottom: 3.5rem;
 }
 
-/* container layout: gallery on top (full width) then description + booking */
+/* container layout: gallery on top (full width of content area) then description + booking */
 .container {
-  max-width: 1180px;
+  max-width: var(--page-max-width);
   margin: 24px auto;
-  padding: 0 16px;
+  padding: 0 var(--page-padding);
   display: grid;
   grid-template-columns: 1fr 340px;
   grid-template-rows: auto 1fr;
@@ -34,14 +35,19 @@
   align-items: start;
 }
 
-/* ---------- GALLERY ---------- */
+/* Make sure gallery itself is centered inside content area and respects same side padding */
 .gallery {
   grid-area: gallery;
   display: grid;
   gap: 12px;
   width: 100%;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 0 var(--page-padding);   /* <-- ensures same side margins as other sections */
+  box-sizing: border-box;
 }
 
+/* utility classes for column counts (keeps gallery responsive) */
 .count1 { grid-template-columns: 1fr; }
 .count2 { grid-template-columns: 1fr 1fr; }
 .count3,
@@ -57,16 +63,14 @@
 }
 .mainPhoto img { width:100%; height:100%; object-fit:cover; display:block; }
 
-/* SIDE photos container — всегда зеркально match mainPhoto height */
-/* side photos — автоматически генерируем строки равной высоты */
+/* SIDE photos container — always match mainPhoto height */
+/* side photos — automatically generate equal rows */
 .sidePhotos {
   display: grid;
   gap: 12px;
-  height: var(--gallery-height);   /* обеспечивает, что суммарная высота = mainPhoto */
-  grid-auto-rows: 1fr;             /* ключ: создаёт ровно столько строк, сколько thumbs */
+  height: var(--gallery-height);   /* ensures the total height matches mainPhoto */
+  grid-auto-rows: 1fr;             /* creates equal rows for thumbs */
 }
-
-
 
 /* thumb */
 .thumb { overflow:hidden; border-radius:8px; height:100%; }
@@ -153,6 +157,7 @@
   .gallery {
     grid-template-columns: 1fr;
     gap: 12px;
+    padding: 0 var(--page-padding); /* keep same side padding on mobile */
   }
 
   .mainPhoto {
@@ -162,7 +167,7 @@
   }
 
   .sidePhotos {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     grid-template-rows: none;
     gap: 8px;
     height: auto;
@@ -177,13 +182,15 @@
   .thumb img { height: 78px; }
 }
 
-
-/* FOOTER */
-
+/* FOOTER: ensure same side padding & centered content area */
 .footerWrapper {
   margin-top: 2rem;
-  padding: 1rem 0;
+  padding: 1rem var(--page-padding);
   border-top: 1px solid #ddd;
+  max-width: var(--page-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
 }
 
 .tabs {
@@ -215,10 +222,222 @@
 .contentWrapper {
   text-align: center;
   padding: 1rem;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding-left: var(--page-padding);
+  padding-right: var(--page-padding);
+  box-sizing: border-box;
 }
 
 .content {
   font-size: 1rem;
   color: #333;
   line-height: 1.5;
+}
+
+/* ===== Footer / Tabs / Reviews styles (add to Property.module.css) ===== */
+
+.footerWrapper {
+  margin-top: 28px;
+  padding: 18px 0 40px 0;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  /* override with same centered layout */
+  max-width: var(--page-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--page-padding);
+  padding-right: var(--page-padding);
+  box-sizing: border-box;
+}
+
+/* Tabs row */
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.tabBtn {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #222;
+}
+.tabBtn:hover { filter: brightness(0.98); }
+.activeTab {
+  background: #fff;
+  border-color: rgba(0,0,0,0.12);
+  box-shadow: 0 6px 18px rgba(10,10,10,0.03);
+}
+
+/* content wrapper */
+.contentWrapper {
+  padding-top: 6px;
+  max-width: var(--page-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--page-padding);
+  padding-right: var(--page-padding);
+  box-sizing: border-box;
+}
+
+/* header above reviews (two metrics columns) */
+.reviewsHeader {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.reviewsHeaderItem {
+  flex: 1;
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.reviewsHeaderTitle { color: #222; font-weight: 600; }
+.reviewsHeaderScore { color: #222; font-weight: 600; }
+
+/* Grid of reviews: two columns as on screenshot */
+.reviewsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 40px;
+}
+
+/* Single review card */
+.reviewCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: transparent;
+  padding: 6px 0;
+}
+.reviewHeader {
+  display:flex;
+  gap: 12px;
+  align-items: center;
+}
+.reviewAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(0,0,0,0.04);
+}
+.reviewName {
+  font-weight: 700;
+  color: #111;
+}
+.reviewText {
+  font-size: 0.95rem;
+  color: #222;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Actions row */
+.reviewsActions {
+  margin-top: 22px;
+}
+.showAllBtn {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.12);
+  padding: 10px 16px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* Responsive: collapse to single column on small screens */
+@media (max-width: 900px) {
+  .reviewsGrid { grid-template-columns: 1fr; gap: 18px; }
+  .reviewsHeader { flex-direction: column; gap: 8px; }
+}
+
+/* ===== Amenities styles (Property.module.css) ===== */
+.amenitiesSection {
+  margin-top: 18px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  max-width: var(--page-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--page-padding);
+  padding-right: var(--page-padding);
+  box-sizing: border-box;
+}
+
+.amenitiesTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #111;
+}
+
+/* grid with two columns */
+.amenitiesGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 36px;
+  align-items: start;
+}
+
+/* single amenity row: icon + text, vertically centered */
+.amenityItem {
+  display: flex;
+  gap: 14px;
+  align-items: center; /* <-- centers text relative to icon */
+  padding: 8px 0;
+}
+
+.amenityIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #222;
+  flex-shrink: 0;
+  font-size: 18px;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: transparent;
+}
+
+/* text block */
+.amenityText {
+  min-width: 0;
+}
+.amenityTitle {
+  font-weight: 600;
+  color: #111;
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+
+/* actions */
+.amenitiesActions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.amenitiesToggleBtn {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.12);
+  padding: 10px 16px;
+  border-radius: 18px;
+  cursor: pointer;
+  font-weight: 700;
+  color: #222;
+}
+
+/* small screens: single column */
+@media (max-width: 900px) {
+  .amenitiesGrid { grid-template-columns: 1fr; gap: 12px 0; }
+  .amenitiesActions { justify-content: center; }
 }
