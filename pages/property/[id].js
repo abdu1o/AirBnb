@@ -1,33 +1,41 @@
-import { useRouter } from "next/router";
+import { getListingById } from "../../lib/listings";
+import { getUserById } from "../../lib/users";
+import { getReviewsCount } from "../../lib/reviews";
 import Header from "../../components/Header";
 import Property from "../../components/Property";
 import PropertyFooter from "../../components/PropertyFooter";
 import styles from "../../styles/Property.module.css";
-import { getListingById } from "../../lib/listings";
+import { notFound } from "next/navigation";
 
-export default function PropertyPage({ listing }) {
-  const router = useRouter();
-
-  if (router.isFallback) {
-    return <div>Loading...</div>;
-  }
-
-  if (!listing) {
-    return <div>Not found</div>;
-  }
+export default function PropertyPage({ listing, user, reviewCount }) {
 
   return (
     <div className={styles.page}>
       <Header />
-      <Property listing={listing} />
-      <PropertyFooter />
+      <Property listing={listing} user={user} reviewCount={reviewCount} />
+      <PropertyFooter listing={listing}/>
     </div>
   );
 }
 
 export async function getServerSideProps({ params }) {
   const listing = await getListingById(params.id);
+  if (!listing) {
+    return { notFound: true };
+  }
+
+  let reviewCount = 0;
+  let user = null;
+
+  if (listing?.hostId) {
+    user = await getUserById(listing.hostId);
+  }
+
+  if (listing) {
+    reviewCount = await getReviewsCount(params.id);
+  }
+
   return {
-    props: { listing },
+    props: { listing, user, reviewCount },
   };
 }

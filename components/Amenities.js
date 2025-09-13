@@ -9,37 +9,35 @@ import {
   FiHome,
   FiWind,
   FiTruck,
-  FiKey,
   FiSun,
-  FiMapPin,
   FiCloud
 } from 'react-icons/fi';
 
 /**
  * Amenities component
  * props:
- *  - amenities: [{ id, title, icon }]
- *
- * If no amenities prop provided, uses sampleAmenities.
+ *  - amenities: { wifi: true, washer: true, kitchen: true, ... }
  */
 export default function Amenities({ amenities }) {
   const [showAll, setShowAll] = useState(false);
-  const initialCount = 6;
+  const initialCount = 3;
 
-  const sampleAmenities = [
-    { id: 'kitchen', title: 'Кухня', icon: <FiCoffee size={20} /> },
-    { id: 'sleep', title: 'Окреме місце для сну', icon: <FiHome size={20} /> },
-    { id: 'wifi', title: 'Wi-Fi', icon: <FiWifi size={20} /> },
-    { id: 'tv', title: 'Телевізор', icon: <FiTv size={20} /> },
-    { id: 'ac', title: 'Кондиціонер', icon: <FiWind size={20} /> },
-    { id: 'washer', title: 'Пральна машина', icon: <FiCloud size={20} /> },
-    { id: 'parking', title: 'Паркінг', icon: <FiTruck size={20} /> },
-    { id: 'selfcheck', title: 'Самостійне прибуття', icon: <FiKey size={20} /> },
-    { id: 'sun', title: 'Поблизу пляж', icon: <FiSun size={20} /> },
-    { id: 'location', title: 'Зручне розташування', icon: <FiMapPin size={20} /> },
-  ];
+  const amenityMap = {
+    wifi: { title: 'Wi-Fi', icon: <FiWifi size={20} /> },
+    washer: { title: 'Пральна машина', icon: <FiCloud size={20} /> },
+    kitchen: { title: 'Кухня', icon: <FiCoffee size={20} /> },
+    airConditioning: { title: 'Кондиціонер', icon: <FiWind size={20} /> },
+    heating: { title: 'Опалення', icon: <FiSun size={20} /> },
+    tv: { title: 'Телевізор', icon: <FiTv size={20} /> },
+    parking: { title: 'Паркінг', icon: <FiTruck size={20} /> },
+    balcony: { title: 'Балкон', icon: <FiHome size={20} /> },
+  };
 
-  const list = amenities && amenities.length ? amenities : sampleAmenities;
+  // Преобразуем объект amenities в массив только с true
+  const list = Object.entries(amenities || {})
+    .filter(([key, value]) => value)
+    .map(([key]) => ({ id: key, ...amenityMap[key] }));
+
   const total = list.length;
   const visible = showAll ? list : list.slice(0, initialCount);
 
@@ -68,7 +66,7 @@ export default function Amenities({ amenities }) {
             onClick={() => setShowAll((s) => !s)}
             aria-expanded={showAll}
           >
-            {showAll ? 'Сховати' : `Показати всі зручності (${total})`}
+            {showAll ? 'Сховати' : `Показати всі (${total})`}
           </button>
         </div>
       )}

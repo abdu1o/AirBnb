@@ -6,20 +6,8 @@ import LocationComponent from '../components/LocationComponent';
 import Amenities from './Amenities';
 import Review from './Review';
 
-export default function PropertyFooter() {
+export default function PropertyFooter({ listing }) {
   const [activeTab, setActiveTab] = useState('amenities');
-
-  const sampleAmenities = [
-  { id: 'kitchen', title: 'Кухня', desc: '' , icon: (<svg ></svg>) },
-  { id: 'workspace', title: 'Окреме місце для сну' },
-  { id: 'wifi', title: 'Wi-Fi' },
-  { id: 'tv', title: 'Телевізор HDTV з 32-дюймовим екраном', desc: 'стандартне кабельне ТБ, Netflix' },
-  { id: 'lift', title: 'Ліфт' },
-  { id: 'ac', title: 'Портативна система кондиціонування' },
-  { id: 'dryer', title: 'Пральна та сушильна машина' },
-  { id: 'kitch-equipped', title: 'Укомплектована кухня' },
-  { id: 'hairdryer', title: 'Фен' },
-  { id: 'parking', title: 'Паркінг' }];
 
   // Демонстрационные отзывы — замени на реальные при подключении БД
   const sampleReviews = [
@@ -58,7 +46,7 @@ export default function PropertyFooter() {
   const renderContent = () => {
     switch (activeTab) {
       case 'amenities':
-        return <Amenities amenities={sampleAmenities} />;;
+        return <Amenities amenities={listing.amenities} />;
       case 'reviews':
         return (
           <div>
@@ -91,7 +79,7 @@ export default function PropertyFooter() {
         return (<LocationComponent
           lat={48.43333}
           lng={33.4234}
-          title="Одеса, Одеська область, Україна"
+          title={listing.location}
           shortText="Перша лінія біля моря, Аркадія, Французький бульвар"
           fullText="Точне розташування буде повідомлено після бронювання. Поблизу: набережна, ресторани, парки. Готово для прогулянок та відпочинку."
           zoom={14}
