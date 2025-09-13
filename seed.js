@@ -20,14 +20,12 @@ async function seed() {
 
     const users = [
       { 
-        _id: 1, 
         name: 'John Doe', 
         email: 'john@example.com',
         password: 'qwe123',
         avatarUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/users/user1.png'
       },
       { 
-        _id: 2, 
         name: 'Alice Smith', 
         email: 'alice@example.com',
         password: 'zxc123',
@@ -35,57 +33,341 @@ async function seed() {
       }
     ];
 
-const listings = [
-  { _id: 1, title: 'Odesa, Ukraine', price: 70, location: 'Біля моря', dateFrom: '2025-11-01', dateTo: '2025-11-10', hostId: 1, rating: 4.88, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing1.jpg', childrenAllowed: true, petsAllowed: false },
-  { _id: 2, title: 'Odesa, Ukraine', price: 100, location: 'Біля моря', dateFrom: '2025-11-02', dateTo: '2025-11-07', hostId: 1, rating: 4.98, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing2.jpg', childrenAllowed: false, petsAllowed: true },
-  { _id: 3, title: 'Odesa, Ukraine', price: 70, location: 'Біля моря', dateFrom: '2025-11-01', dateTo: '2025-11-10', hostId: 1, rating: 4.88, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing3.jpg', childrenAllowed: true, petsAllowed: true },
-  { _id: 4, title: 'Lviv, Ukraine', price: 85, location: 'Центр', dateFrom: '2025-10-10', dateTo: '2025-10-18', hostId: 2, rating: 4.72, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing4.jpg', childrenAllowed: false, petsAllowed: false },
-  { _id: 5, title: 'Kyiv, Ukraine', price: 120, location: 'Поділ', dateFrom: '2025-09-20', dateTo: '2025-09-25', hostId: 2, rating: 4.94, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing5.jpg', childrenAllowed: true, petsAllowed: false },
-  { _id: 6, title: 'Kharkiv, Ukraine', price: 60, location: 'Північ', dateFrom: '2025-08-15', dateTo: '2025-08-20', hostId: 3, rating: 4.45, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing6.png', childrenAllowed: false, petsAllowed: true },
-  { _id: 7, title: 'Dnipro, Ukraine', price: 90, location: 'Набережна', dateFrom: '2025-10-01', dateTo: '2025-10-05', hostId: 3, rating: 4.67, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing7.png', childrenAllowed: true, petsAllowed: true },
-  { _id: 8, title: 'Poltava, Ukraine', price: 55, location: 'Біля парку', dateFrom: '2025-08-11', dateTo: '2025-08-14', hostId: 4, rating: 4.23, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing8.png', childrenAllowed: false, petsAllowed: true },
-  { _id: 9, title: 'Lutsk, Ukraine', price: 48, location: 'Старе місто', dateFrom: '2025-09-01', dateTo: '2025-09-04', hostId: 4, rating: 4.11, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing9.png', childrenAllowed: true, petsAllowed: false },
-  { _id: 10, title: 'Rivne, Ukraine', price: 50, location: 'Центр', dateFrom: '2025-10-06', dateTo: '2025-10-12', hostId: 5, rating: 4.33, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing10.png', childrenAllowed: false, petsAllowed: false },
-  { _id: 11, title: 'Ivano-Frankivsk, Ukraine', price: 75, location: 'Площа Ринок', dateFrom: '2025-11-01', dateTo: '2025-11-03', hostId: 6, rating: 4.78, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing11.png', childrenAllowed: true, petsAllowed: false },
-  { _id: 12, title: 'Chernihiv, Ukraine', price: 68, location: 'Біля річки', dateFrom: '2025-09-10', dateTo: '2025-09-15', hostId: 7, rating: 4.55, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing12.png', childrenAllowed: false, petsAllowed: true },
-  { _id: 13, title: 'Vinnytsia, Ukraine', price: 85, location: 'Набережна', dateFrom: '2025-09-20', dateTo: '2025-09-23', hostId: 8, rating: 4.70, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing13.png', childrenAllowed: true, petsAllowed: true },
-  { _id: 14, title: 'Ternopil, Ukraine', price: 60, location: 'Центр', dateFrom: '2025-10-01', dateTo: '2025-10-05', hostId: 8, rating: 4.32, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing14.png', childrenAllowed: false, petsAllowed: false },
-  { _id: 15, title: 'Zaporizhzhia, Ukraine', price: 70, location: 'Біля Дніпра', dateFrom: '2025-08-12', dateTo: '2025-08-16', hostId: 9, rating: 4.28, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing15.png', childrenAllowed: true, petsAllowed: true },
-  { _id: 16, title: 'Zhytomyr, Ukraine', price: 52, location: 'Околиця', dateFrom: '2025-07-30', dateTo: '2025-08-04', hostId: 9, rating: 4.12, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing16.png', childrenAllowed: false, petsAllowed: true },
-  { _id: 17, title: 'Sumy, Ukraine', price: 58, location: 'Центр', dateFrom: '2025-11-11', dateTo: '2025-11-15', hostId: 10, rating: 4.46, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing17.png', childrenAllowed: true, petsAllowed: false },
-  { _id: 18, title: 'Mykolaiv, Ukraine', price: 65, location: 'Біля річки', dateFrom: '2025-10-12', dateTo: '2025-10-18', hostId: 10, rating: 4.51, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing18.png', childrenAllowed: false, petsAllowed: true },
-  { _id: 19, title: 'Uzhhorod, Ukraine', price: 80, location: 'Гори', dateFrom: '2025-11-05', dateTo: '2025-11-10', hostId: 11, rating: 4.89, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing19.png', childrenAllowed: true, petsAllowed: true },
-  { _id: 20, title: 'Chernivtsi, Ukraine', price: 75, location: 'Старе місто', dateFrom: '2025-10-20', dateTo: '2025-10-25', hostId: 11, rating: 4.68, imageUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing20.png', childrenAllowed: false, petsAllowed: false },
-];
+    const userResult = await db.collection('users').insertMany(users);
+    const userIds = Object.values(userResult.insertedIds);
+
+    const listings = [
+      {
+        title: "Odesa, Ukraine",
+        price: 70,
+        location: "Біля моря",
+        dateFrom: "2025-11-01",
+        dateTo: "2025-11-10",
+        hostId: userIds[0],
+        rating: 4.88,
+        imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing1.jpg",
+        childrenAllowed: true,
+        petsAllowed: false,
+        description: "Світла квартира біля моря з великим балконом і видом на захід сонця",
+        details: { guests: 4, bedrooms: 2, beds: 2, bathrooms: 1 },
+        amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true }
+      },
+      {
+        title: "Odesa, Ukraine",
+        price: 100,
+        location: "Біля моря",
+        dateFrom: "2025-11-02",
+        dateTo: "2025-11-07",
+        hostId: userIds[0],
+        rating: 4.98,
+        imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing2.jpg",
+        childrenAllowed: false,
+        petsAllowed: true,
+        description: "Стильна студія з дизайнерським інтер’єром та видом на море",
+        details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+        amenities: { wifi: true, washer: false, kitchen: true, airConditioning: true, heating: true, tv: true, parking: false, balcony: true }
+      },
+      {
+        title: "Odesa, Ukraine",
+        price: 70,
+        location: "Біля моря",
+        dateFrom: "2025-11-01",
+        dateTo: "2025-11-10",
+        hostId: userIds[0],
+        rating: 4.88,
+        imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing3.jpg",
+        childrenAllowed: true,
+        petsAllowed: true,
+        description: "Комфортна квартира в пішій доступності до пляжу",
+        details: { guests: 3, bedrooms: 1, beds: 2, bathrooms: 1 },
+        amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: false }
+      },
+      {
+        title: "Lviv, Ukraine",
+        price: 85,
+        location: "Центр",
+        dateFrom: "2025-10-10",
+        dateTo: "2025-10-18",
+        hostId: userIds[1],
+        rating: 4.72,
+        imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing4.jpg",
+        childrenAllowed: false,
+        petsAllowed: false,
+        description: "Затишна квартира у центрі Львова з видом на історичні вулиці",
+        details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+        amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true }
+      },
+      {
+        title: "Kyiv, Ukraine",
+        price: 120,
+        location: "Поділ",
+        dateFrom: "2025-09-20",
+        dateTo: "2025-09-25",
+        hostId: userIds[1],
+        rating: 4.94,
+        imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing5.jpg",
+        childrenAllowed: true,
+        petsAllowed: false,
+        description: "Простора квартира на Подолі з сучасним ремонтом",
+        details: { guests: 4, bedrooms: 2, beds: 3, bathrooms: 1 },
+        amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: true, balcony: true }
+      },
+      {
+      title: "Kharkiv, Ukraine",
+      price: 60,
+      location: "Північ",
+      dateFrom: "2025-08-15",
+      dateTo: "2025-08-20",
+      hostId: userIds[0],
+      rating: 4.45,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing6.png",
+      childrenAllowed: false,
+      petsAllowed: true,
+      description: "Невелика студія для подорожуючих у діловій частині міста",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: false }
+    },
+    {
+      title: "Dnipro, Ukraine",
+      price: 90,
+      location: "Набережна",
+      dateFrom: "2025-10-01",
+      dateTo: "2025-10-05",
+      hostId: userIds[0],
+      rating: 4.67,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing7.png",
+      childrenAllowed: true,
+      petsAllowed: true,
+      description: "Квартира біля набережної з панорамними вікнами",
+      details: { guests: 3, bedrooms: 1, beds: 2, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: false, balcony: true }
+    },
+    {
+      title: "Poltava, Ukraine",
+      price: 55,
+      location: "Біля парку",
+      dateFrom: "2025-08-11",
+      dateTo: "2025-08-14",
+      hostId: userIds[1],
+      rating: 4.23,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing8.png",
+      childrenAllowed: false,
+      petsAllowed: true,
+      description: "Затишна квартира біля парку, ідеально для прогулянок",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: false }
+    },
+    {
+      title: "Lutsk, Ukraine",
+      price: 48,
+      location: "Старе місто",
+      dateFrom: "2025-09-01",
+      dateTo: "2025-09-04",
+      hostId: userIds[1],
+      rating: 4.11,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing9.png",
+      childrenAllowed: true,
+      petsAllowed: false,
+      description: "Квартира в самому серці старого міста з автентичним інтер’єром",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: false }
+    },
+    {
+      title: "Rivne, Ukraine",
+      price: 50,
+      location: "Центр",
+      dateFrom: "2025-10-06",
+      dateTo: "2025-10-12",
+      hostId: userIds[1],
+      rating: 4.33,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing10.png",
+      childrenAllowed: false,
+      petsAllowed: false,
+      description: "Невелика квартира з усім необхідним у центрі Рівного",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: false }
+    },
+    {
+      title: "Ivano-Frankivsk, Ukraine",
+      price: 75,
+      location: "Площа Ринок",
+      dateFrom: "2025-11-01",
+      dateTo: "2025-11-03",
+      hostId: userIds[0],
+      rating: 4.78,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing11.png",
+      childrenAllowed: true,
+      petsAllowed: false,
+      description: "Апартаменти біля площі Ринок з класичним інтер’єром",
+      details: { guests: 3, bedrooms: 1, beds: 2, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true }
+    },
+    {
+      title: "Chernihiv, Ukraine",
+      price: 68,
+      location: "Біля річки",
+      dateFrom: "2025-09-10",
+      dateTo: "2025-09-15",
+      hostId: userIds[0],
+      rating: 4.55,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing12.png",
+      childrenAllowed: false,
+      petsAllowed: true,
+      description: "Квартира з видом на річку, тихий та спокійний район",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: true }
+    },
+    {
+      title: "Vinnytsia, Ukraine",
+      price: 85,
+      location: "Набережна",
+      dateFrom: "2025-09-20",
+      dateTo: "2025-09-23",
+      hostId: userIds[1],
+      rating: 4.70,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing13.png",
+      childrenAllowed: true,
+      petsAllowed: true,
+      description: "Сучасна квартира біля набережної з панорамним видом",
+      details: { guests: 4, bedrooms: 2, beds: 3, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: true, balcony: true }
+    },
+    {
+      title: "Ternopil, Ukraine",
+      price: 60,
+      location: "Центр",
+      dateFrom: "2025-10-01",
+      dateTo: "2025-10-05",
+      hostId: userIds[1],
+      rating: 4.32,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing14.png",
+      childrenAllowed: false,
+      petsAllowed: false,
+      description: "Затишна квартира у центрі Тернополя з балконом",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true }
+    },
+    {
+      title: "Zaporizhzhia, Ukraine",
+      price: 70,
+      location: "Біля Дніпра",
+      dateFrom: "2025-08-12",
+      dateTo: "2025-08-16",
+      hostId: userIds[0],
+      rating: 4.28,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing15.png",
+      childrenAllowed: true,
+      petsAllowed: true,
+      description: "Квартира з видом на Дніпро, сучасний інтер’єр",
+      details: { guests: 3, bedrooms: 1, beds: 2, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: true }
+    },
+    {
+      title: "Zhytomyr, Ukraine",
+      price: 52,
+      location: "Околиця",
+      dateFrom: "2025-07-30",
+      dateTo: "2025-08-04",
+      hostId: userIds[0],
+      rating: 4.12,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing16.png",
+      childrenAllowed: false,
+      petsAllowed: true,
+      description: "Невелика квартира на околиці міста з тихим двориком",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: false }
+    },
+    {
+      title: "Sumy, Ukraine",
+      price: 58,
+      location: "Центр",
+      dateFrom: "2025-11-11",
+      dateTo: "2025-11-15",
+      hostId: userIds[1],
+      rating: 4.46,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing17.png",
+      childrenAllowed: true,
+      petsAllowed: false,
+      description: "Апартаменти у центрі міста поруч з кафе та магазинами",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true }
+    },
+    {
+      title: "Mykolaiv, Ukraine",
+      price: 65,
+      location: "Біля річки",
+      dateFrom: "2025-10-12",
+      dateTo: "2025-10-18",
+      hostId: userIds[0],
+      rating: 4.51,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing18.png",
+      childrenAllowed: false,
+      petsAllowed: true,
+      description: "Світла квартира біля річки з лоджією",
+      details: { guests: 3, bedrooms: 1, beds: 2, bathrooms: 1 },
+      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: true, heating: true, tv: true, parking: true, balcony: true }
+    },
+    {
+      title: "Uzhhorod, Ukraine",
+      price: 80,
+      location: "Гори",
+      dateFrom: "2025-11-05",
+      dateTo: "2025-11-10",
+      hostId: userIds[1],
+      rating: 4.89,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing19.png",
+      childrenAllowed: true,
+      petsAllowed: true,
+      description: "Квартира з видом на гори, камін та дерев’яні меблі",
+      details: { guests: 4, bedrooms: 2, beds: 3, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: true, balcony: true }
+    },
+    {
+      title: "Chernivtsi, Ukraine",
+      price: 75,
+      location: "Старе місто",
+      dateFrom: "2025-10-20",
+      dateTo: "2025-10-25",
+      hostId: userIds[0],
+      rating: 4.68,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing20.png",
+      childrenAllowed: false,
+      petsAllowed: false,
+      description: "Апартаменти у старому місті з автентичною атмосферою",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true }
+    }
+  ];
+
+    const listingResult = await db.collection('listings').insertMany(listings);
+    const listingIds = Object.values(listingResult.insertedIds);
 
     const bookings = [
-      { userId: 1, listingId: 2},
-      { userId: 2, listingId: 1}
+      { userId: userIds[0], listingId: listingIds[1] },
+      { userId: userIds[1], listingId: listingIds[0] }
     ];
 
     const favorites = [
-      { userId: 1, listingId: 1 },
-      { userId: 2, listingId: 2 }
+      { userId: userIds[0], listingId: listingIds[0] },
+      { userId: userIds[1], listingId: listingIds[1] }
     ];
 
     const payments = [
-      { userId: 1, amount: 150, status: 'paid', method: 'card' },
-      { userId: 2, amount: 225, status: 'pending', method: 'paypal' }
+      { userId: userIds[0], amount: 150, status: 'paid', method: 'card' },
+      { userId: userIds[1], amount: 225, status: 'pending', method: 'paypal' }
     ];
 
     const reviews = [
-      { listingId: 1, userId: 2, rating: 5, comment: 'Awesome place!' },
-      { listingId: 2, userId: 1, rating: 4, comment: 'Very comfortable.' }
+      { listingId: listingIds[0], userId: userIds[1], rating: 5, comment: 'Awesome place!' },
+      { listingId: listingIds[1], userId: userIds[0], rating: 4, comment: 'Very comfortable.' }
     ];
 
-    await db.collection('users').insertMany(users);
-    await db.collection('listings').insertMany(listings);
     await db.collection('bookings').insertMany(bookings);
     await db.collection('favorites').insertMany(favorites);
     await db.collection('payments').insertMany(payments);
     await db.collection('reviews').insertMany(reviews);
 
-    console.log('Database seeded');
+    console.log('Database seeded with ObjectId references ✅');
   } catch (err) {
     console.error('Error seeding:', err);
   } finally {

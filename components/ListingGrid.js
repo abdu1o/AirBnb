@@ -5,7 +5,7 @@ export default function ListingGrid({ data }) {
   return (
     <div className={styles.listingGrid}>
       {data.map(item => (
-        <ListingCard key={item.id} {...item} />
+        <ListingCard key={item.id} id={item.id} {...item} />
       ))}
     </div>
   );

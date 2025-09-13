@@ -1,9 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState, useMemo } from 'react';
 import SelectionModal from './SelectionModal';
 import WhoModal from './WhoModal';
 import styles from '../styles/Property.module.css';
+import { pluralize } from '../lib/utils/pluralizer';
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -12,7 +14,7 @@ function formatDate(iso) {
 
 const IMG = 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260';
 
-export default function Property({ photos: incomingPhotos }) {
+export default function Property({ photos: incomingPhotos, listing, user, reviewCount }) {
   const photos = (incomingPhotos && incomingPhotos.length)
     ? incomingPhotos
     : [IMG, IMG, IMG, IMG];
@@ -36,19 +38,21 @@ export default function Property({ photos: incomingPhotos }) {
   const countKey = Math.min(photos.length, 4);
   const countClass = `count${countKey}`;
 
+  console.log(listing);
+
   return (
     <>
       <main className={styles.container}>
         <div className={`${styles.gallery} ${styles[countClass]}`}>
           <div className={styles.mainPhoto}>
-            <img src={main} alt="Main property" loading="lazy" />
+            <img src={listing.imageUrl} alt="Main property" loading="lazy" />
           </div>
 
           {side.length > 0 && (
             <div className={styles.sidePhotos}>
               {side.map((src, idx) => (
                 <div key={idx} className={styles.thumb}>
-                  <img src={src} alt={`Photo ${idx + 2}`} loading="lazy" />
+                  <img src={listing.imageUrl} alt={`Photo ${idx + 2}`} loading="lazy" />
                 </div>
               ))}
             </div>
@@ -56,27 +60,28 @@ export default function Property({ photos: incomingPhotos }) {
         </div>
 
         <section className={styles.description}>
-          <h1 className={styles.title}>Студія та спальня з панарамою на місто! Біля моря!</h1>
+          <h1 className={styles.title}>{listing.description}</h1>
 
           <div className={styles.meta}>
-            <span>★ 4,95 · 35 відгуків</span>
-            <span>· Одеса, Одеська область, Україна</span>
+            <span>★ {listing.rating} · {reviewCount} відгуків</span>
+            <span>· {listing.title}, {listing.location}</span>
           </div>
 
           <div className={styles.about}>
-            <h2>Помешкання для оренди, господар — Ілона</h2>
-            <p className={styles.info}>4 гостя, 1 спальня, 2 ліжка, 1 ванна кімната</p>
-
+            <h2>Господар — {user.name}</h2>
+            <p className={styles.info}>
+              {listing.details.guests} {pluralize(listing.details.guests, 'гостя', 'гостя', 'гостей')}, {" "}
+              {listing.details.beds} {pluralize(listing.details.beds, 'спальне місце', 'спальні місця', 'спальних місць')}, {" "}
+              {listing.details.bedrooms} {pluralize(listing.details.bedrooms, 'спальня', 'спальні', 'спальнь')}, {" "}
+              {listing.details.bathrooms} {pluralize(listing.details.bathrooms, 'ванна кімната', 'ванні кімнати', 'ванних кімнат')} {" "}
+            </p>
+            
             <hr />
 
-            <h3>Окреме робоче місце</h3>
-            <p className={styles.small}>Зона спільного користування з Wi-Fi, яка добре підходить для роботи. Великий стіл, зручне крісло та швидкий інтернет — все, що потрібно для продуктивного дня.</p>
+            <h2 className={styles.title}>Кому можна їхати</h2>
 
-            <h3>Самостійне прибуття</h3>
-            <p className={styles.small}>Самостійне прибуття за допомогою ключа в сейфі — зручне та безконтактне.</p>
-
-            <h3>Безкоштовне скасування</h3>
-            <p className={styles.small}>Безкоштовне скасування бронювання до 30 грудня.</p>
+            <p className={styles.small}> Діти до 12 років - {listing.childrenAllowed ? "Так" : "Ні"}</p>
+            <p className={styles.small}> Тваринки - {listing.animalsAllowed ? "Так" : "Ні"}</p>
           </div>
         </section>
 
@@ -84,7 +89,7 @@ export default function Property({ photos: incomingPhotos }) {
           <div className={styles.bookingCard}>
             <div className={styles.priceRow}>
               <div className={styles.price}><strong>${price}</strong> ніч</div>
-              <div className={styles.rating}>★ 4,95 · 35 відгуків</div>
+              <div className={styles.rating}>★ {listing.rating} · {reviewCount} відгуків</div>
             </div>
 
             <div className={styles.inputsGrid}>
