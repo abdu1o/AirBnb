@@ -6,42 +6,8 @@ import LocationComponent from '../components/LocationComponent';
 import Amenities from './Amenities';
 import Review from './Review';
 
-export default function PropertyFooter({ listing }) {
+export default function PropertyFooter({ listing, reviews }) {
   const [activeTab, setActiveTab] = useState('amenities');
-
-  // Демонстрационные отзывы — замени на реальные при подключении БД
-  const sampleReviews = [
-    {
-      name: 'Oleksandr',
-      avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&h=80&w=80',
-      text: 'Однозначно рекомендую, все було на високому рівні :)',
-    },
-    {
-      name: 'Дарина',
-      avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&h=80&w=80',
-      text: 'Дуже дякую за гарні апартаменти! Дуже близько до пляжу, а сама квартира просто вау!',
-    },
-    {
-      name: 'Дарья',
-      avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&h=80&w=80',
-      text: 'Всі фото відповідають дійсності. Вид з вікна просто неймовірний!',
-    },
-    {
-      name: 'Даниил',
-      avatar: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&h=80&w=80',
-      text: 'Все пройшло чудово! Місцерозташування квартири — 5 зірок!',
-    },
-    {
-      name: 'Сергей',
-      avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&h=80&w=80',
-      text: 'Все було чудово! Дар`я завжди готова допомогти!',
-    },
-    {
-      name: 'Sveta',
-      avatar: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&h=80&w=80',
-      text: 'Дуже гарна квартира і дуже гарна господиня. Рекомендую!',
-    },
-  ];
 
   const renderContent = () => {
     switch (activeTab) {
@@ -50,8 +16,11 @@ export default function PropertyFooter({ listing }) {
       case 'reviews':
         return (
           <div>
-            {/* Верхняя строка с заголовками/метриками (как на скриншоте) */}
-            <div className={styles.reviewsHeader}>
+
+            {/* !Сделаю если будет время!  */}
+
+            {/* Верхняя строка с заголовками/метриками */}
+            {/* <div className={styles.reviewsHeader}>
               <div className={styles.reviewsHeaderItem}>
                 <div className={styles.reviewsHeaderTitle}>Прибуття</div>
                 <div className={styles.reviewsHeaderScore}>4,9</div>
@@ -61,30 +30,44 @@ export default function PropertyFooter({ listing }) {
                 <div className={styles.reviewsHeaderTitle}>Ціна/Якість</div>
                 <div className={styles.reviewsHeaderScore}>4,9</div>
               </div>
-            </div>
+            </div> */}
+            {/* ---------------------------------  */}
+
 
             {/* Сетка отзывов */}
             <div className={styles.reviewsGrid}>
-              {sampleReviews.map((r, idx) => (
-                <Review key={idx} avatar={r.avatar} name={r.name} text={r.text} />
+              {reviews.map((r) => (
+                <Review
+                  key={r.id}
+                  avatar={r.user.avatarUrl}
+                  name={`${r.user.name} ⭐ ${r.rating}`}
+                  text={r.comment}
+                />
               ))}
             </div>
-
-            <div className={styles.reviewsActions}>
-              <button className={styles.showAllBtn}>Показати всі 35 відгуків</button>
-            </div>
+            
+            {/* !Сделаю если будет время!  */}
+            {/* <div className={styles.reviewsActions}>
+              <button className={styles.showAllBtn}>
+                Показати всі {reviews.length} відгуків
+              </button>
+            </div> */}
+            {/* ---------------------------------  */}
+            
           </div>
         );
       case 'location':
-        return (<LocationComponent
-          lat={48.43333}
-          lng={33.4234}
-          title={listing.location}
-          shortText="Перша лінія біля моря, Аркадія, Французький бульвар"
-          fullText="Точне розташування буде повідомлено після бронювання. Поблизу: набережна, ресторани, парки. Готово для прогулянок та відпочинку."
-          zoom={14}
-          iframeHeight={380}
-        />);
+        return (
+          <LocationComponent
+            lat={listing.lat}
+            lng={listing.lng}
+            title={listing.title}
+            shortText={listing.location}
+            fullText={listing.exactAddress}
+            zoom={14}
+            iframeHeight={380}
+          />
+        );
       default:
         return null;
     }

@@ -38,8 +38,6 @@ export default function Property({ photos: incomingPhotos, listing, user, review
   const countKey = Math.min(photos.length, 4);
   const countClass = `count${countKey}`;
 
-  console.log(listing);
-
   return (
     <>
       <main className={styles.container}>
