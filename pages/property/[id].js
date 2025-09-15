@@ -12,7 +12,7 @@ export default function PropertyPage({ listing, user, reviewCount, reviews }) {
   return (
     <div className={styles.page}>
       <Header />
-      <Property listing={listing} user={user} reviewCount={reviewCount}/>
+      <Property listing={listing} user={user} reviewCount={reviewCount} reviews={reviews}/>
       <PropertyFooter listing={listing} reviews={reviews}/>
     </div>
   );

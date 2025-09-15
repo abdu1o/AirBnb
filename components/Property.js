@@ -14,10 +14,17 @@ function formatDate(iso) {
 
 const IMG = 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260';
 
-export default function Property({ photos: incomingPhotos, listing, user, reviewCount }) {
+export default function Property({ photos: incomingPhotos, listing, user, reviewCount, reviews }) {
   const photos = (incomingPhotos && incomingPhotos.length)
     ? incomingPhotos
     : [IMG, IMG, IMG, IMG];
+
+  // вычисляем средний рейтинг на основе reviews
+  const avgRating = useMemo(() => {
+    if (!reviews || reviews.length === 0) return null;
+    const sum = reviews.reduce((acc, r) => acc + (r.rating || 0), 0);
+    return (sum / reviews.length).toFixed(1);
+  }, [reviews]);
 
   // states for dates (existing)
   const [selection, setSelection] = useState(null);
@@ -61,17 +68,19 @@ export default function Property({ photos: incomingPhotos, listing, user, review
           <h1 className={styles.title}>{listing.description}</h1>
 
           <div className={styles.meta}>
-            <span>★ {listing.rating} · {reviewCount} відгуків</span>
+            <span>
+              ★ {avgRating !== null ? avgRating : '—'} · {reviewCount} відгуків
+            </span>
             <span>· {listing.title}, {listing.location}</span>
           </div>
 
           <div className={styles.about}>
             <h2>Господар — {user.name}</h2>
             <p className={styles.info}>
-              {listing.details.guests} {pluralize(listing.details.guests, 'гостя', 'гостя', 'гостей')}, {" "}
-              {listing.details.beds} {pluralize(listing.details.beds, 'спальне місце', 'спальні місця', 'спальних місць')}, {" "}
-              {listing.details.bedrooms} {pluralize(listing.details.bedrooms, 'спальня', 'спальні', 'спальнь')}, {" "}
-              {listing.details.bathrooms} {pluralize(listing.details.bathrooms, 'ванна кімната', 'ванні кімнати', 'ванних кімнат')} {" "}
+              {listing.details.guests} {pluralize(listing.details.guests, 'гостя', 'гостя', 'гостей')},{" "}
+              {listing.details.beds} {pluralize(listing.details.beds, 'спальне місце', 'спальні місця', 'спальних місць')},{" "}
+              {listing.details.bedrooms} {pluralize(listing.details.bedrooms, 'спальня', 'спальні', 'спальнь')},{" "}
+              {listing.details.bathrooms} {pluralize(listing.details.bathrooms, 'ванна кімната', 'ванні кімнати', 'ванних кімнат')}{" "}
             </p>
             
             <hr />
@@ -87,7 +96,9 @@ export default function Property({ photos: incomingPhotos, listing, user, review
           <div className={styles.bookingCard}>
             <div className={styles.priceRow}>
               <div className={styles.price}><strong>${price}</strong> ніч</div>
-              <div className={styles.rating}>★ {listing.rating} · {reviewCount} відгуків</div>
+              <div className={styles.rating}>
+                ★ {avgRating !== null ? avgRating : '—'} · {reviewCount} відгуків
+              </div>
             </div>
 
             <div className={styles.inputsGrid}>
