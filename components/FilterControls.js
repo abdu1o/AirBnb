@@ -38,7 +38,7 @@ export default function FilterControls({ categoriesSelected, setCategoriesSelect
       console.error(e);
     }
     setHydrated(true);
-  }, []);
+  }, [setCategoriesSelected]);
 
   // Сохраняем в localStorage и на сервер
   useEffect(() => {
