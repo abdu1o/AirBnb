@@ -14,6 +14,7 @@ let state = {
     end: null,   
     label: "",    
   },
+  categories: [],
 };
 
 export default function handler(req, res) {
@@ -39,6 +40,7 @@ export default function handler(req, res) {
     }
 
     state = { ...state, ...newState };
+    console.log("Сохраняем state:", newState);
     return res.status(200).json({ message: "Saved", state });
   }
 
