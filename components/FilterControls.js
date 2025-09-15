@@ -12,10 +12,9 @@ function formatDateForInput(iso) {
   return new Intl.DateTimeFormat('uk-UA').format(new Date(iso));
 }
 
-export default function FilterControls() {
+export default function FilterControls({ categoriesSelected, setCategoriesSelected }) {
   const [hydrated, setHydrated] = useState(false);
 
-  // --- Состояния с дефолтными значениями для SSR ---
   const [dateRange, setDateRange] = useState(null);
   const [whereSelected, setWhereSelected] = useState(null);
   const [whoSelected, setWhoSelected] = useState(null);
@@ -24,24 +23,24 @@ export default function FilterControls() {
   const [whereOpen, setWhereOpen] = useState(false);
   const [whoOpen, setWhoOpen] = useState(false);
 
-  // --- Читаем localStorage только на клиенте ---
+  // Инициализация с localStorage
   useEffect(() => {
     try {
-      const rawDate = localStorage.getItem('hf_dateRange');
-      if (rawDate) setDateRange(JSON.parse(rawDate));
-
-      const rawWhere = localStorage.getItem('hf_where');
-      if (rawWhere) setWhereSelected(JSON.parse(rawWhere));
-
-      const rawWho = localStorage.getItem('hf_who');
-      if (rawWho) setWhoSelected(JSON.parse(rawWho));
+      const rawState = localStorage.getItem('hf_state');
+      if (rawState) {
+        const state = JSON.parse(rawState);
+        setDateRange(state.dateRange || null);
+        setWhereSelected(state.where || null);
+        setWhoSelected(state.who || null);
+        setCategoriesSelected(state.categories || []);
+      }
     } catch (e) {
-      console.error('Failed to parse localStorage', e);
+      console.error(e);
     }
     setHydrated(true);
   }, []);
 
-  // --- Сохраняем изменения в localStorage и на сервере ---
+  // Сохраняем в localStorage и на сервер
   useEffect(() => {
     if (!hydrated) return;
 
@@ -49,6 +48,7 @@ export default function FilterControls() {
       where: whereSelected || { selected: null, query: '' },
       who: whoSelected || { adults: 1, children: 0, infants: 0, pets: 0 },
       dateRange: dateRange || null,
+      categories: categoriesSelected || [],
     };
 
     try {
@@ -56,19 +56,18 @@ export default function FilterControls() {
       localStorage.setItem('hf_dateRange', JSON.stringify(dateRange));
       localStorage.setItem('hf_where', JSON.stringify(whereSelected));
       localStorage.setItem('hf_who', JSON.stringify(whoSelected));
-      
+      localStorage.setItem('hf_categories', JSON.stringify(categoriesSelected));
     } catch (e) {
-      console.error('Failed to save to localStorage', e);
+      console.error(e);
     }
-  
+
     fetch('/api/searchState', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(state),
     });
-  }, [whereSelected, whoSelected, dateRange, hydrated]);
-
-  // --- Обработчики ---
+  }, [whereSelected, whoSelected, dateRange, categoriesSelected, hydrated]);
+  
   const handleSaveDates = (range) => setDateRange(range);
   const handleSaveWhere = (payload) => setWhereSelected(payload);
   const handleSaveWho = (payload) => setWhoSelected(payload);
@@ -80,10 +79,9 @@ export default function FilterControls() {
 
   const modalKey = useMemo(() => {
     try { return dateRange ? JSON.stringify(dateRange) : 'empty'; }
-    catch (e) { return 'empty'; }
+    catch { return 'empty'; }
   }, [dateRange]);
 
-  // --- Не рендерим ничего на сервере ---
   if (!hydrated) return null;
 
   return (
@@ -160,14 +158,14 @@ export default function FilterControls() {
         isOpen={whereOpen}
         onClose={() => setWhereOpen(false)}
         initialWhere={whereSelected}
-        onSave={(w) => { handleSaveWhere(w); setWhereOpen(false); window.location.reload(); }}
+        onSave={(w) => { handleSaveWhere(w); setWhereOpen(false); window.location.reload();}}
       />
 
       <WhoModal
         isOpen={whoOpen}
         onClose={() => setWhoOpen(false)}
         initialWho={whoSelected}
-        onSave={(w) => { handleSaveWho(w); setWhoOpen(false); window.location.reload(); }}
+        onSave={(w) => { handleSaveWho(w); setWhoOpen(false); window.location.reload();}}
       />
     </div>
   );

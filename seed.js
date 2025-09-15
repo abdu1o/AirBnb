@@ -16,6 +16,7 @@ async function seed() {
       db.collection('payments').deleteMany({}),
       db.collection('reviews').deleteMany({}),
       db.collection('users').deleteMany({}),
+      db.collection('categories').deleteMany({}),
     ]);
 
     const users = [
@@ -36,7 +37,23 @@ async function seed() {
     const userResult = await db.collection('users').insertMany(users);
     const userIds = Object.values(userResult.insertedIds);
 
-    const listings = [
+    const categories = [
+      { name: 'Гарні краєвиди' },
+      { name: 'Великі квартири' },
+      { name: 'Кімнати' },
+      { name: 'Хостели' },
+      { name: 'У центрі міста' },
+      { name: 'Сільська місцевість' },
+      { name: 'Від дизайнера' },
+      { name: 'Біля моря' },
+      { name: 'Особняки' },
+      { name: 'Легендарне' },
+    ]
+
+    const catResult = await db.collection('categories').insertMany(categories);
+    const categoryIds = Object.values(catResult.insertedIds);
+
+  const listings = [
     {
       title: "Odesa, Ukraine",
       price: 70,
@@ -53,7 +70,8 @@ async function seed() {
       amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true },
       lat: 46.4845,
       lng: 30.7326,
-      exactAddress: "Французький бульвар, 12"
+      exactAddress: "Французький бульвар, 12",
+      categories: [categoryIds[8], categoryIds[0]]
     },
     {
       title: "Odesa, Ukraine",
@@ -71,7 +89,8 @@ async function seed() {
       amenities: { wifi: true, washer: false, kitchen: true, airConditioning: true, heating: true, tv: true, parking: false, balcony: true },
       lat: 46.4848,
       lng: 30.7330,
-      exactAddress: "Французький бульвар, 15"
+      exactAddress: "Французький бульвар, 15",
+      categories: [categoryIds[8], categoryIds[7]]
     },
     {
       title: "Odesa, Ukraine",
@@ -89,7 +108,8 @@ async function seed() {
       amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: false },
       lat: 46.4852,
       lng: 30.7340,
-      exactAddress: "Набережна дорога, 21"
+      exactAddress: "Набережна дорога, 21",
+      categories: [categoryIds[8], categoryIds[2]]
     },
     {
       title: "Lviv, Ukraine",
@@ -107,7 +127,8 @@ async function seed() {
       amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true },
       lat: 49.8419,
       lng: 24.0315,
-      exactAddress: "вул. Староєврейська, 7"
+      exactAddress: "вул. Староєврейська, 7",
+      categories: [categoryIds[5], categoryIds[0]]
     },
     {
       title: "Kyiv, Ukraine",
@@ -125,7 +146,8 @@ async function seed() {
       amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: true, balcony: true },
       lat: 50.4632,
       lng: 30.5170,
-      exactAddress: "вул. Костянтинівська, 12, кв. 5"
+      exactAddress: "вул. Костянтинівська, 12, кв. 5",
+      categories: [categoryIds[5], categoryIds[2]]
     },
     {
       title: "Kharkiv, Ukraine",
@@ -143,7 +165,8 @@ async function seed() {
       amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: false },
       lat: 50.0077,
       lng: 36.2290,
-      exactAddress: "вул. Сумська, 45"
+      exactAddress: "вул. Сумська, 45",
+      categories: [categoryIds[1]]
     },
     {
       title: "Dnipro, Ukraine",
@@ -161,7 +184,8 @@ async function seed() {
       amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: false, balcony: true },
       lat: 48.4647,
       lng: 35.0462,
-      exactAddress: "просп. Дніпровський, 3"
+      exactAddress: "просп. Дніпровський, 3",
+      categories: [categoryIds[8], categoryIds[0]]
     },
     {
       title: "Poltava, Ukraine",
@@ -179,7 +203,8 @@ async function seed() {
       amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: false },
       lat: 49.5901,
       lng: 34.5514,
-      exactAddress: "вул. Миру, 10"
+      exactAddress: "вул. Миру, 10",
+      categories: [categoryIds[1], categoryIds[6]]
     },
     {
       title: "Lutsk, Ukraine",
@@ -197,7 +222,8 @@ async function seed() {
       amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: false },
       lat: 50.7472,
       lng: 25.3251,
-      exactAddress: "вул. Лесі Українки, 6"
+      exactAddress: "вул. Лесі Українки, 6",
+      categories: [categoryIds[5], categoryIds[10]]
     },
     {
       title: "Rivne, Ukraine",
@@ -215,190 +241,200 @@ async function seed() {
       amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: false },
       lat: 50.6199,
       lng: 26.2516,
-      exactAddress: "вул. Шевченка, 18"
+      exactAddress: "вул. Шевченка, 18",
+      categories: [categoryIds[1], categoryIds[5]]
     },
-    {
+        {
       title: "Ivano-Frankivsk, Ukraine",
-      price: 75,
-      location: "Площа Ринок",
-      dateFrom: "2025-11-01",
-      dateTo: "2025-11-03",
+      price: 65,
+      location: "Центр",
+      dateFrom: "2025-09-15",
+      dateTo: "2025-09-20",
       hostId: userIds[0],
-      rating: 4.78,
+      rating: 4.56,
       imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing11.png",
       childrenAllowed: true,
-      petsAllowed: false,
-      description: "Апартаменти біля площі Ринок з класичним інтер’єром",
+      petsAllowed: true,
+      description: "Квартира у центрі Івано-Франківська з балконом і сучасними меблями",
       details: { guests: 3, bedrooms: 1, beds: 2, bathrooms: 1 },
       amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true },
       lat: 48.9226,
-      lng: 24.7111,
-      exactAddress: "пл. Ринок, 5"
-    },
-    {
-      title: "Chernihiv, Ukraine",
-      price: 68,
-      location: "Біля річки",
-      dateFrom: "2025-09-10",
-      dateTo: "2025-09-15",
-      hostId: userIds[0],
-      rating: 4.55,
-      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing12.png",
-      childrenAllowed: false,
-      petsAllowed: true,
-      description: "Квартира з видом на річку, тихий та спокійний район",
-      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
-      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: true },
-      lat: 51.4982,
-      lng: 31.2893,
-      exactAddress: "вул. Михайла Грушевського, 22"
+      lng: 24.7103,
+      exactAddress: "вул. Незалежності, 20",
+      categories: [categoryIds[5], categoryIds[1]]
     },
     {
       title: "Vinnytsia, Ukraine",
-      price: 85,
-      location: "Набережна",
-      dateFrom: "2025-09-20",
-      dateTo: "2025-09-23",
+      price: 70,
+      location: "Центр",
+      dateFrom: "2025-09-25",
+      dateTo: "2025-09-30",
       hostId: userIds[1],
-      rating: 4.70,
+      rating: 4.61,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing12.png",
+      childrenAllowed: false,
+      petsAllowed: false,
+      description: "Зручна квартира у центрі Вінниці поруч із фонтаном Roshen",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: true, balcony: false },
+      lat: 49.2331,
+      lng: 28.4682,
+      exactAddress: "вул. Соборна, 45",
+      categories: [categoryIds[5], categoryIds[10]]
+    },
+    {
+      title: "Chernihiv, Ukraine",
+      price: 52,
+      location: "Центр",
+      dateFrom: "2025-08-21",
+      dateTo: "2025-08-26",
+      hostId: userIds[0],
+      rating: 4.29,
       imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing13.png",
       childrenAllowed: true,
+      petsAllowed: false,
+      description: "Квартира поруч із історичним валом Чернігова",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: false },
+      lat: 51.4982,
+      lng: 31.2893,
+      exactAddress: "вул. Гетьмана Полуботка, 12",
+      categories: [categoryIds[5]]
+    },
+    {
+      title: "Uzhhorod, Ukraine",
+      price: 58,
+      location: "Центр",
+      dateFrom: "2025-10-02",
+      dateTo: "2025-10-08",
+      hostId: userIds[1],
+      rating: 4.39,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing14.png",
+      childrenAllowed: true,
       petsAllowed: true,
-      description: "Сучасна квартира біля набережної з панорамним видом",
-      details: { guests: 4, bedrooms: 2, beds: 3, bathrooms: 1 },
+      description: "Автентична квартира в історичному центрі Ужгорода",
+      details: { guests: 3, bedrooms: 1, beds: 2, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: false, parking: false, balcony: false },
+      lat: 48.6239,
+      lng: 22.2950,
+      exactAddress: "пл. Корятовича, 4",
+      categories: [categoryIds[5], categoryIds[10]]
+    },
+    {
+      title: "Zaporizhzhia, Ukraine",
+      price: 75,
+      location: "Біля Дніпра",
+      dateFrom: "2025-09-12",
+      dateTo: "2025-09-17",
+      hostId: userIds[0],
+      rating: 4.47,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing15.png",
+      childrenAllowed: false,
+      petsAllowed: true,
+      description: "Простора квартира біля Дніпра з видом на річку",
+      details: { guests: 4, bedrooms: 2, beds: 2, bathrooms: 1 },
       amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: true, balcony: true },
-      lat: 49.2328,
-      lng: 28.4682,
-      exactAddress: "Набережна, 11"
+      lat: 47.8388,
+      lng: 35.1396,
+      exactAddress: "просп. Соборний, 200",
+      categories: [categoryIds[8], categoryIds[0]]
     },
     {
       title: "Ternopil, Ukraine",
-      price: 60,
+      price: 53,
       location: "Центр",
-      dateFrom: "2025-10-01",
-      dateTo: "2025-10-05",
+      dateFrom: "2025-09-18",
+      dateTo: "2025-09-22",
       hostId: userIds[1],
-      rating: 4.32,
-      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing14.png",
-      childrenAllowed: false,
+      rating: 4.31,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing16.png",
+      childrenAllowed: true,
       petsAllowed: false,
-      description: "Затишна квартира у центрі Тернополя з балконом",
+      description: "Квартира біля Тернопільського ставу з гарним видом",
       details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
       amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true },
       lat: 49.5535,
       lng: 25.5948,
-      exactAddress: "вул. Сагайдачного, 3"
-    },
-    {
-      title: "Zaporizhzhia, Ukraine",
-      price: 70,
-      location: "Біля Дніпра",
-      dateFrom: "2025-08-12",
-      dateTo: "2025-08-16",
-      hostId: userIds[0],
-      rating: 4.28,
-      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing15.png",
-      childrenAllowed: true,
-      petsAllowed: true,
-      description: "Квартира з видом на Дніпро, сучасний інтер’єр",
-      details: { guests: 3, bedrooms: 1, beds: 2, bathrooms: 1 },
-      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: true },
-      lat: 47.8388,
-      lng: 35.1396,
-      exactAddress: "просп. Металургів, 8"
-    },
-    {
-      title: "Zhytomyr, Ukraine",
-      price: 52,
-      location: "Околиця",
-      dateFrom: "2025-07-30",
-      dateTo: "2025-08-04",
-      hostId: userIds[0],
-      rating: 4.12,
-      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing16.png",
-      childrenAllowed: false,
-      petsAllowed: true,
-      description: "Невелика квартира на околиці міста з тихим двориком",
-      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
-      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: true, parking: true, balcony: false },
-      lat: 50.2547,
-      lng: 28.6585,
-      exactAddress: "вул. Чуднівська, 12"
-    },
-    {
-      title: "Sumy, Ukraine",
-      price: 58,
-      location: "Центр",
-      dateFrom: "2025-11-11",
-      dateTo: "2025-11-15",
-      hostId: userIds[1],
-      rating: 4.46,
-      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing17.png",
-      childrenAllowed: true,
-      petsAllowed: false,
-      description: "Апартаменти у центрі міста поруч з кафе та магазинами",
-      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
-      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true },
-      lat: 50.9077,
-      lng: 34.7981,
-      exactAddress: "вул. Петропавлівська, 9"
+      exactAddress: "вул. Руська, 33",
+      categories: [categoryIds[0], categoryIds[6]]
     },
     {
       title: "Mykolaiv, Ukraine",
-      price: 65,
-      location: "Біля річки",
-      dateFrom: "2025-10-12",
-      dateTo: "2025-10-18",
-      hostId: userIds[0],
-      rating: 4.51,
-      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing18.png",
+      price: 62,
+      location: "Центр",
+      dateFrom: "2025-10-15",
+      dateTo: "2025-10-20",
+      hostId: userIds[1],
+      rating: 4.41,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing17.png",
       childrenAllowed: false,
       petsAllowed: true,
-      description: "Світла квартира біля річки з лоджією",
-      details: { guests: 3, bedrooms: 1, beds: 2, bathrooms: 1 },
-      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: true, heating: true, tv: true, parking: true, balcony: true },
-      lat: 46.9670,
-      lng: 31.9889,
-      exactAddress: "вул. Потьомкінська, 14"
+      description: "Квартира в центрі Миколаєва поруч із Соборною площею",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: false, balcony: false },
+      lat: 46.9750,
+      lng: 31.9946,
+      exactAddress: "вул. Адміральська, 15",
+      categories: [categoryIds[5]]
     },
     {
-      title: "Uzhhorod, Ukraine",
-      price: 80,
-      location: "Гори",
-      dateFrom: "2025-11-05",
-      dateTo: "2025-11-10",
-      hostId: userIds[1],
-      rating: 4.89,
-      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing19.png",
+      title: "Sumy, Ukraine",
+      price: 49,
+      location: "Центр",
+      dateFrom: "2025-09-07",
+      dateTo: "2025-09-11",
+      hostId: userIds[0],
+      rating: 4.18,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing18.png",
       childrenAllowed: true,
-      petsAllowed: true,
-      description: "Квартира з видом на гори, камін та дерев’яні меблі",
-      details: { guests: 4, bedrooms: 2, beds: 3, bathrooms: 1 },
-      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: true, balcony: true },
-      lat: 48.6238,
-      lng: 22.2945,
-      exactAddress: "вул. Корятовича, 7"
+      petsAllowed: false,
+      description: "Невелика квартира у центрі Сум для коротких подорожей",
+      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
+      amenities: { wifi: true, washer: false, kitchen: true, airConditioning: false, heating: true, tv: false, parking: false, balcony: false },
+      lat: 50.9077,
+      lng: 34.7981,
+      exactAddress: "вул. Харківська, 8",
+      categories: [categoryIds[1], categoryIds[5]]
     },
     {
       title: "Chernivtsi, Ukraine",
-      price: 75,
-      location: "Старе місто",
-      dateFrom: "2025-10-20",
-      dateTo: "2025-10-25",
+      price: 66,
+      location: "Центр",
+      dateFrom: "2025-10-05",
+      dateTo: "2025-10-09",
       hostId: userIds[0],
-      rating: 4.68,
+      rating: 4.52,
+      imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing19.png",
+      childrenAllowed: true,
+      petsAllowed: true,
+      description: "Квартира біля Чернівецького університету з історичним шармом",
+      details: { guests: 3, bedrooms: 1, beds: 2, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: false, balcony: true },
+      lat: 48.2915,
+      lng: 25.9403,
+      exactAddress: "вул. Університетська, 1",
+      categories: [categoryIds[10], categoryIds[5]]
+    },
+    {
+      title: "Mariupol, Ukraine",
+      price: 72,
+      location: "Біля моря",
+      dateFrom: "2025-09-27",
+      dateTo: "2025-10-03",
+      hostId: userIds[1],
+      rating: 4.63,
       imageUrl: "https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/listings/listing20.png",
       childrenAllowed: false,
-      petsAllowed: false,
-      description: "Апартаменти у старому місті з автентичною атмосферою",
-      details: { guests: 2, bedrooms: 1, beds: 1, bathrooms: 1 },
-      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: false, heating: true, tv: true, parking: false, balcony: true },
-      lat: 48.2915,
-      lng: 25.9354,
-      exactAddress: "вул. Ольги Кобилянської, 19"
+      petsAllowed: true,
+      description: "Квартира біля моря з сучасним ремонтом та панорамними вікнами",
+      details: { guests: 4, bedrooms: 2, beds: 3, bathrooms: 1 },
+      amenities: { wifi: true, washer: true, kitchen: true, airConditioning: true, heating: true, tv: true, parking: true, balcony: true },
+      lat: 47.0951,
+      lng: 37.5413,
+      exactAddress: "просп. Миру, 50",
+      categories: [categoryIds[8], categoryIds[0]]
     }
   ];
-
 
     const listingResult = await db.collection('listings').insertMany(listings);
     const listingIds = Object.values(listingResult.insertedIds);

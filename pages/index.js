@@ -12,6 +12,7 @@ export default function Home({ initialListings }) {
   const [listings, setListings] = useState(initialListings);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialListings.length === 10);
+  const [categoriesSelected, setCategoriesSelected] = useState([]);
 
   const handleAppendClick = async () => {
     const res = await fetch(`/api/listings?skip=${page * 10}&limit=10`);
@@ -28,8 +29,14 @@ export default function Home({ initialListings }) {
   return (
     <>
       <Header />
-      <FilterControls />
-      <CategoryChips />
+      <FilterControls
+        categoriesSelected={categoriesSelected}
+        setCategoriesSelected={setCategoriesSelected}
+      />
+      <CategoryChips
+        categoriesSelected={categoriesSelected}
+        setCategoriesSelected={setCategoriesSelected}
+      />
       <ListingGrid data={listings} />
       {hasMore && <AppendData onClick={handleAppendClick} />}
       <Additional />
