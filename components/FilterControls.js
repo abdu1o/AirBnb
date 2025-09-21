@@ -12,7 +12,7 @@ function formatDateForInput(iso) {
   return new Intl.DateTimeFormat('uk-UA').format(new Date(iso));
 }
 
-export default function FilterControls({ categoriesSelected, setCategoriesSelected }) {
+export default function FilterControls({ categoriesSelected, setCategoriesSelected, onFiltersChange }) {
   const [hydrated, setHydrated] = useState(false);
 
   const [dateRange, setDateRange] = useState(null);
@@ -23,7 +23,6 @@ export default function FilterControls({ categoriesSelected, setCategoriesSelect
   const [whereOpen, setWhereOpen] = useState(false);
   const [whoOpen, setWhoOpen] = useState(false);
 
-  // Инициализация с localStorage
   useEffect(() => {
     try {
       const rawState = localStorage.getItem('hf_state');
@@ -40,7 +39,6 @@ export default function FilterControls({ categoriesSelected, setCategoriesSelect
     setHydrated(true);
   }, [setCategoriesSelected]);
 
-  // Сохраняем в localStorage и на сервер
   useEffect(() => {
     if (!hydrated) return;
 
@@ -53,10 +51,6 @@ export default function FilterControls({ categoriesSelected, setCategoriesSelect
 
     try {
       localStorage.setItem('hf_state', JSON.stringify(state));
-      localStorage.setItem('hf_dateRange', JSON.stringify(dateRange));
-      localStorage.setItem('hf_where', JSON.stringify(whereSelected));
-      localStorage.setItem('hf_who', JSON.stringify(whoSelected));
-      localStorage.setItem('hf_categories', JSON.stringify(categoriesSelected));
     } catch (e) {
       console.error(e);
     }
@@ -65,8 +59,11 @@ export default function FilterControls({ categoriesSelected, setCategoriesSelect
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(state),
+    }).then(() => {
+ 
+      onFiltersChange && onFiltersChange();
     });
-  }, [whereSelected, whoSelected, dateRange, categoriesSelected, hydrated]);
+  }, [whereSelected, whoSelected, dateRange, categoriesSelected, hydrated, onFiltersChange]);
   
   const handleSaveDates = (range) => setDateRange(range);
   const handleSaveWhere = (payload) => setWhereSelected(payload);
@@ -118,13 +115,10 @@ export default function FilterControls({ categoriesSelected, setCategoriesSelect
             </div>
           </>
         ) : (
-          <>
-            <div role="button" tabIndex={0} className={styles.whenContainer} onClick={openModalSafe}>
-              <div className={styles.whenLabel}>Коли</div>
-              <div className={styles.whenValue}>{dateRange?.label || 'Оберіть дату'}</div>
-            </div>
-            {dateRange?.type !== 'flex' && <div className={styles.separator} />}
-          </>
+          <div role="button" tabIndex={0} className={styles.whenContainer} onClick={openModalSafe}>
+            <div className={styles.whenLabel}>Коли</div>
+            <div className={styles.whenValue}>{dateRange?.label || 'Оберіть дату'}</div>
+          </div>
         )}
 
         <div className={styles.separator} />
@@ -151,21 +145,21 @@ export default function FilterControls({ categoriesSelected, setCategoriesSelect
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         initialRange={dateRange}
-        onSave={(range) => { handleSaveDates(range); setModalOpen(false); window.location.reload(); }}
+        onSave={(range) => { handleSaveDates(range); setModalOpen(false); }}
       />
 
       <WhereModal
         isOpen={whereOpen}
         onClose={() => setWhereOpen(false)}
         initialWhere={whereSelected}
-        onSave={(w) => { handleSaveWhere(w); setWhereOpen(false); window.location.reload();}}
+        onSave={(w) => { handleSaveWhere(w); setWhereOpen(false); }}
       />
 
       <WhoModal
         isOpen={whoOpen}
         onClose={() => setWhoOpen(false)}
         initialWho={whoSelected}
-        onSave={(w) => { handleSaveWho(w); setWhoOpen(false); window.location.reload();}}
+        onSave={(w) => { handleSaveWho(w); setWhoOpen(false); }}
       />
     </div>
   );
