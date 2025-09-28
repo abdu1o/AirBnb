@@ -26,20 +26,32 @@ export default function Property({ photos: incomingPhotos, listing, user, review
     return (sum / reviews.length).toFixed(1);
   }, [reviews]);
 
-  // states for dates (existing)
+  // states for dates
   const [selection, setSelection] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // NEW: who modal state
-  const [who, setWho] = useState(null); // will hold {adults,children,infants,pets,label}
+  // who state
+  const [who, setWho] = useState(null);
   const [whoModalOpen, setWhoModalOpen] = useState(false);
 
-  const price = useMemo(() => 63, []);
+  // базовая цена за ночь
+  const basePrice = useMemo(() => listing.price || 63, [listing]);
 
-  // guests label shown in input: prefer `who.label`, fallback to simple default
-  const guestsLabel = who && who.label ? who.label : '1 гість';
+  // вычисляем количество ночей
+  const nights = useMemo(() => {
+    if (!selection || !selection.start || !selection.end) return 1;
+    const start = new Date(selection.start);
+    const end = new Date(selection.end);
+    const diff = (end - start) / (1000 * 60 * 60 * 24);
+    return diff > 0 ? diff : 1;
+  }, [selection]);
 
-  // gallery logic (same as before)
+  // итоговая цена
+  const totalPrice = useMemo(() => basePrice * nights, [basePrice, nights]);
+
+  const guestsLabel = who?.label || '1 гість';
+
+  // gallery
   const main = photos[0];
   const side = photos.slice(1);
   const countKey = Math.min(photos.length, 4);
@@ -95,7 +107,9 @@ export default function Property({ photos: incomingPhotos, listing, user, review
         <aside className={styles.booking}>
           <div className={styles.bookingCard}>
             <div className={styles.priceRow}>
-              <div className={styles.price}><strong>${price}</strong> ніч</div>
+              <div className={styles.price}>
+                <strong>${totalPrice}</strong> {nights > 1 ? `за ${nights} ночей` : 'ніч'}
+              </div>
               <div className={styles.rating}>
                 ★ {avgRating !== null ? avgRating : '—'} · {reviewCount} відгуків
               </div>
@@ -111,7 +125,7 @@ export default function Property({ photos: incomingPhotos, listing, user, review
                 className={styles.inputBox}
                 onClick={() => setModalOpen(true)}
               >
-                {selection && selection.type === 'range' ? formatDate(selection.start) : 'Оберіть'}
+                {selection?.start ? formatDate(selection.start) : 'Оберіть'}
               </div>
 
               <div
@@ -120,13 +134,12 @@ export default function Property({ photos: incomingPhotos, listing, user, review
                 className={styles.inputBox}
                 onClick={() => setModalOpen(true)}
               >
-                {selection && selection.type === 'range' ? formatDate(selection.end) : 'Оберіть'}
+                {selection?.end ? formatDate(selection.end) : 'Оберіть'}
               </div>
 
               <div className={styles.inputLabel}>ГОСТІ</div>
               <div className={styles.inputLabel}> </div>
 
-              {/* Guests input: open WhoModal on click */}
               <div
                 role="button"
                 tabIndex={0}
@@ -144,18 +157,17 @@ export default function Property({ photos: incomingPhotos, listing, user, review
         </aside>
       </main>
 
-      {/* SelectionModal (dates) */}
+      {/* SelectionModal */}
       <SelectionModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         initialRange={selection}
         onSave={(range) => {
-          if (range) setSelection(range);
-          setModalOpen(false);
+          setSelection(range);
         }}
       />
 
-      {/* WhoModal (guests) */}
+      {/* WhoModal */}
       <WhoModal
         isOpen={whoModalOpen}
         onClose={() => setWhoModalOpen(false)}

@@ -1,4 +1,3 @@
-// components/SelectionModal.js
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -16,18 +15,31 @@ function buildMonthGrid(year, month) {
   const cells = [];
   const prevMonth = new Date(year, month, 0);
   const prevTotal = prevMonth.getDate();
-  for (let i = prevTotal - prevMonthDays + 1; i <= prevTotal; i++) cells.push({ date: new Date(year, month - 1, i), inCurrentMonth: false });
-  for (let i = 1; i <= total; i++) cells.push({ date: new Date(year, month, i), inCurrentMonth: true });
+  for (let i = prevTotal - prevMonthDays + 1; i <= prevTotal; i++) {
+    cells.push({ date: new Date(year, month - 1, i), inCurrentMonth: false });
+  }
+  for (let i = 1; i <= total; i++) {
+    cells.push({ date: new Date(year, month, i), inCurrentMonth: true });
+  }
   while (cells.length % 7 !== 0) {
     const nextIndex = cells.length - (weekday + total);
     cells.push({ date: new Date(year, month + 1, nextIndex + 1), inCurrentMonth: false });
   }
   return cells;
 }
-function isSameDay(a, b) { if (!a || !b) return false; return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
-function isBetween(day, start, end) { if (!start || !end) return false; const d = new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime(); const s = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime(); const e = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime(); return d > s && d < e; }
-
-// Helper: compare two date-or-null values
+function isSameDay(a, b) {
+  if (!a || !b) return false;
+  return a.getFullYear() === b.getFullYear() &&
+         a.getMonth() === b.getMonth() &&
+         a.getDate() === b.getDate();
+}
+function isBetween(day, start, end) {
+  if (!start || !end) return false;
+  const d = new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime();
+  const s = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime();
+  const e = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime();
+  return d > s && d < e;
+}
 function datesEqual(a, b) {
   if (!a && !b) return true;
   if (!a || !b) return false;
@@ -35,7 +47,6 @@ function datesEqual(a, b) {
 }
 
 export default function SelectionModal({ isOpen, onClose, initialRange, onSave }) {
-  // compute today once per mount (stable)
   const today = useMemo(() => {
     const n = new Date();
     return new Date(n.getFullYear(), n.getMonth(), n.getDate());
@@ -47,58 +58,44 @@ export default function SelectionModal({ isOpen, onClose, initialRange, onSave }
   const [start, setStart] = useState(null);
   const [end, setEnd] = useState(null);
 
-  // Keep rightMonth one after leftMonth
   useEffect(() => {
     setRightMonth(addMonths(leftMonth, 1));
   }, [leftMonth]);
 
-  // Sync incoming initialRange -> internal state
-  // Run only when initialRange changes (not on every render).
   useEffect(() => {
-    // if no initialRange -> clear selection (but only if it differs)
     if (!initialRange) {
-      if (!datesEqual(start, null) || !datesEqual(end, null)) {
-        setStart(null);
-        setEnd(null);
-      }
+      setStart(null);
+      setEnd(null);
       return;
     }
 
-    // Build candidate start/end from initialRange
     let s = initialRange.start ? new Date(initialRange.start) : null;
     let e = initialRange.end ? new Date(initialRange.end) : null;
 
-    // normalize to local midnight
     if (s) s = new Date(s.getFullYear(), s.getMonth(), s.getDate());
     if (e) e = new Date(e.getFullYear(), e.getMonth(), e.getDate());
 
-    // clamp to today (disallow past)
     if (s && s.getTime() < today.getTime()) s = new Date(today);
     if (e && e.getTime() < today.getTime()) e = new Date(today);
-
-    // ensure end >= start
     if (s && e && e.getTime() < s.getTime()) e = new Date(s);
 
-    // update state only if values actually changed - prevents state loops
     if (!datesEqual(s, start) || !datesEqual(e, end)) {
       setStart(s);
       setEnd(e);
     }
-    // IMPORTANT: depend only on initialRange (and today if you like — it's stable via useMemo)
   }, [initialRange, today]);
 
   if (!isOpen) return null;
 
   const handleDayClick = (day) => {
     const dayMid = new Date(day.getFullYear(), day.getMonth(), day.getDate());
-    if (dayMid.getTime() < today.getTime()) return; // ignore past
+    if (dayMid.getTime() < today.getTime()) return;
 
     if (!start || (start && end)) {
       setStart(dayMid);
       setEnd(null);
     } else if (start && !end) {
       if (dayMid.getTime() < start.getTime()) {
-        // clicked before start -> set new start (clamped to today)
         const newStart = dayMid.getTime() < today.getTime() ? new Date(today) : dayMid;
         setStart(newStart);
       } else {
@@ -108,13 +105,32 @@ export default function SelectionModal({ isOpen, onClose, initialRange, onSave }
   };
 
   const saveAndClose = () => {
-    if (start && end) onSave({ type: 'range', start: start.toISOString(), end: end.toISOString(), label: `${start.toLocaleDateString('uk-UA')} — ${end.toLocaleDateString('uk-UA')}` });
-    else if (start && !end) onSave({ type: 'range', start: start.toISOString(), end: start.toISOString(), label: `${start.toLocaleDateString('uk-UA')}` });
-    else onSave(null);
+    if (start && end) {
+      onSave({
+        type: 'range',
+        start: start.toISOString(),
+        end: end.toISOString(),
+        label: `${start.toLocaleDateString('uk-UA')} — ${end.toLocaleDateString('uk-UA')}`
+      });
+    } else if (start && !end) {
+      onSave({
+        type: 'range',
+        start: start.toISOString(),
+        end: start.toISOString(),
+        label: `${start.toLocaleDateString('uk-UA')}`
+      });
+    } else {
+      onSave(null);
+    }
     onClose();
   };
 
-  const clearSelection = () => { setStart(null); setEnd(null); };
+  const clearSelection = (e) => {
+    e.stopPropagation(); 
+    setStart(null);
+    setEnd(null);
+    onSave(null);
+  };
 
   const renderMonth = (monthDate) => {
     const year = monthDate.getFullYear();
@@ -123,8 +139,12 @@ export default function SelectionModal({ isOpen, onClose, initialRange, onSave }
 
     return (
       <div className={styles.calendarMonth} key={`${year}-${month}`}>
-        <div className={styles.monthTitle}>{monthDate.toLocaleString('uk-UA', { month: 'long', year: 'numeric' })}</div>
-        <div className={styles.weekdays}>{['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'].map(w => <div key={w}>{w}</div>)}</div>
+        <div className={styles.monthTitle}>
+          {monthDate.toLocaleString('uk-UA', { month: 'long', year: 'numeric' })}
+        </div>
+        <div className={styles.weekdays}>
+          {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'].map(w => <div key={w}>{w}</div>)}
+        </div>
         <div className={styles.daysGrid}>
           {cells.map((c, idx) => {
             const d = c.date;
@@ -163,7 +183,10 @@ export default function SelectionModal({ isOpen, onClose, initialRange, onSave }
   };
 
   return (
-    <div className={styles.overlay} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div
+      className={styles.overlay}
+      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
       <div className={styles.modal} onMouseDown={(e) => e.stopPropagation()}>
         <button className={styles.closeButton} onClick={onClose}>✕</button>
 
