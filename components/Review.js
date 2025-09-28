@@ -1,4 +1,3 @@
-// components/Review.js
 import React from 'react';
 import styles from '../styles/Property.module.css';
 
