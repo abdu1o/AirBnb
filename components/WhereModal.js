@@ -8,14 +8,15 @@ import { geoMercator, geoPath } from 'd3-geo';
 export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
   const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
   const svgRef = useRef(null);
+  const containerRef = useRef(null);
   const [topo, setTopo] = useState(null);
   const [geojson, setGeojson] = useState(null);
   const [selected, setSelected] = useState(initialWhere || null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
 
-  const width = 980;
-  const height = 420;
+  // responsive size for the map container
+  const [size, setSize] = useState({ width: 980, height: 420 });
   const margin = 10;
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
       .catch(() => {
         if (!cancelled) alert('Ошибка загрузки карты');
       });
-    return () => cancelled = true;
+    return () => (cancelled = true);
   }, [isOpen]);
 
   useEffect(() => {
@@ -43,13 +44,42 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
     }
   }, [isOpen, initialWhere]);
 
+  // ResizeObserver to make the map responsive
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const el = containerRef.current;
+
+    const update = () => {
+      const w = Math.max(280, Math.min(980, el.clientWidth || 980));
+      // height relative to width but constrained
+      const h = Math.max(220, Math.round(w * 0.45));
+      setSize({ width: Math.round(w), height: Math.round(h) });
+    };
+
+    update();
+
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+
+    // also update on window resize fallback
+    const onWin = () => update();
+    window.addEventListener('resize', onWin);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', onWin);
+    };
+  }, [containerRef.current, isOpen]);
+
   const { projection, pathGen } = useMemo(() => {
+    if (!geojson) return { projection: null, pathGen: () => '' };
+
     const proj = geoMercator()
-      .fitSize([width - margin * 2, height - margin * 2], geojson || { type: 'FeatureCollection', features: [] })
+      .fitSize([size.width - margin * 2, size.height - margin * 2], geojson)
       .precision(0.1);
     const path = geoPath().projection(proj);
     return { projection: proj, pathGen: path };
-  }, [geojson]);
+  }, [geojson, size.width, size.height]);
 
   const onCountryClick = (featureObj) => {
     const name = featureObj.properties?.name || featureObj.properties?.NAME || 'Unknown';
@@ -104,7 +134,10 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
   if (!isOpen) return null;
 
   return (
-    <div className={styles.overlay} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div
+      className={styles.overlay}
+      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
       <div className={styles.modal} onMouseDown={(e) => e.stopPropagation()}>
         <button className={styles.closeButton} onClick={onClose}>✕</button>
         <h3 style={{ textAlign: 'center', margin: '8px 0 14px' }}>Оберіть місто або країну</h3>
@@ -130,8 +163,18 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
           </div>
         )}
 
-        <div style={{ width: '100%', height: height, overflow: 'hidden', borderRadius: 10, border: '1px solid rgba(0,0,0,0.06)' }}>
-          <svg ref={svgRef} width="100%" height="100%" viewBox={`0 0 {width} {height}`} preserveAspectRatio="xMidYMid meet">
+        {/* containerRef used to measure available width/height */}
+        <div
+          ref={containerRef}
+          style={{ width: '100%', height: size.height, overflow: 'hidden', borderRadius: 10, border: '1px solid rgba(0,0,0,0.06)' }}
+        >
+          <svg
+            ref={svgRef}
+            width="100%"
+            height="100%"
+            viewBox={`0 0 ${size.width} ${size.height}`}
+            preserveAspectRatio="xMidYMid meet"
+          >
             <g transform={`translate(${margin},${margin})`}>
               {geojson && geojson.features.map((f, i) => (
                 <path
@@ -146,14 +189,20 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
                 />
               ))}
 
-              {selected && selected.lon && selected.lat && (() => {
-                const [x, y] = projection([parseFloat(selected.lon), parseFloat(selected.lat)]) || [0, 0];
-                return (
-                  <g transform={`translate(${x},${y})`}>
-                    <circle r={6} fill="#1b79ff" stroke="#fff" strokeWidth={1.5} />
-                    <text x={10} y={4} style={{ fontFamily: 'system-ui', fontSize: 12, fill: '#222' }}>{selected.label}</text>
-                  </g>
-                );
+              {selected && selected.lon && selected.lat && projection && (() => {
+                try {
+                  const coords = projection([parseFloat(selected.lon), parseFloat(selected.lat)]);
+                  if (!coords) return null;
+                  const [x, y] = coords;
+                  return (
+                    <g transform={`translate(${x},${y})`}>
+                      <circle r={6} fill="#1b79ff" stroke="#fff" strokeWidth={1.5} />
+                      <text x={10} y={4} style={{ fontFamily: 'system-ui', fontSize: 12, fill: '#222' }}>{selected.label}</text>
+                    </g>
+                  );
+                } catch (err) {
+                  return null;
+                }
               })()}
             </g>
           </svg>
