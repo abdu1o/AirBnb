@@ -6,15 +6,22 @@ import SelectionModal from './SelectionModal';
 import WhoModal from './WhoModal';
 import styles from '../styles/Property.module.css';
 import { pluralize } from '../lib/utils/pluralizer';
+import Link from 'next/link';
 
 function formatDate(iso) {
   if (!iso) return '';
   return new Intl.DateTimeFormat('uk-UA').format(new Date(iso));
 }
 
+const params = new URLSearchParams();
+
+
 const IMG = 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260';
 
 export default function Property({ photos: incomingPhotos, listing, user, reviewCount, reviews }) {
+
+
+
   const photos = (incomingPhotos && incomingPhotos.length)
     ? incomingPhotos
     : [IMG, IMG, IMG, IMG];
@@ -57,6 +64,15 @@ export default function Property({ photos: incomingPhotos, listing, user, review
   const countKey = Math.min(photos.length, 4);
   const countClass = `count${countKey}`;
 
+  if (selection?.start) params.set('start', selection.start);
+  if (selection?.end) params.set('end', selection.end);
+  console.log(who)
+  params.set('guests', String(who?.label || 1));
+  params.set('nights', String(nights));
+  params.set('total', String(totalPrice));
+  if (listing?.id) params.set('property', listing.id);
+  const href = `/order?${params.toString()}`;
+
   return (
     <>
       <main className={styles.container}>
@@ -94,7 +110,7 @@ export default function Property({ photos: incomingPhotos, listing, user, review
               {listing.details.bedrooms} {pluralize(listing.details.bedrooms, 'спальня', 'спальні', 'спальнь')},{" "}
               {listing.details.bathrooms} {pluralize(listing.details.bathrooms, 'ванна кімната', 'ванні кімнати', 'ванних кімнат')}{" "}
             </p>
-            
+
             <hr />
 
             <h2 className={styles.title}>Кому можна їхати</h2>
@@ -151,7 +167,9 @@ export default function Property({ photos: incomingPhotos, listing, user, review
               </div>
             </div>
 
-            <button className={styles.bookButton}>Забронювати</button>
+            <Link href={href}>
+              <button className={styles.bookButton}>Забронювати</button>
+            </Link>
             <div className={styles.note}>Поки що ви нічого не платите</div>
           </div>
         </aside>
@@ -175,6 +193,7 @@ export default function Property({ photos: incomingPhotos, listing, user, review
         onSave={(payload) => {
           setWho(payload);
           setWhoModalOpen(false);
+          
         }}
       />
     </>
