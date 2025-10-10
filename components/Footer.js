@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import styles from '../styles/Home.module.css';
+import { FaXTwitter, FaFacebookF } from "react-icons/fa6";
 
 export default function Footer() {
   return (
@@ -27,7 +28,7 @@ export default function Footer() {
           </ul>
         </div>
         <div>
-          <h4>HomeFU</h4>
+          <h4>AirBNB</h4>
           <ul>
             <li><Link href="#">Новини</Link></li>
             <li><Link href="#">Нові функції</Link></li>
@@ -47,8 +48,8 @@ export default function Footer() {
         <div className={styles.footerSocial}>
           <Link href="#">Українська (UA)</Link>
           <Link href="#">$ USD</Link>
-          <Link href="#">🐦</Link>
-          <Link href="#">📘</Link>
+          <Link href="#"><FaXTwitter /></Link>
+          <Link href="#"><FaFacebookF /></Link>
         </div>
       </div>
     </footer>
