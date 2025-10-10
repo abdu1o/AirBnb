@@ -265,4 +265,15 @@
     .page {
         padding-inline: 2%;
     }
+
+    .inputError {
+        border-color: #e63946;
+    }
+
+    .errorText {
+        color: #e63946;
+        font-size: 14px;
+        margin-top: 6px;
+    }
+
 }

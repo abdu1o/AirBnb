@@ -1,15 +1,21 @@
 // components/OrderPage.js
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import styles from '../styles/Order.module.css';
 import { useSearchParams } from 'next/navigation';
+import { countryCodes } from "../lib/utils/consts";
 
+// Допоміжні функції
 function fmt(iso) {
   if (!iso) return '';
   try {
-    return new Intl.DateTimeFormat('uk-UA', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso));
+    return new Intl.DateTimeFormat('uk-UA', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    }).format(new Date(iso));
   } catch {
     return iso;
   }
@@ -24,7 +30,6 @@ function calcNights(start, end) {
 }
 
 export default function OrderPage({ listing = null, user = null, reviewCount = 0, reviews = [] }) {
-  // URL params (if page was opened via Link с query)
   const sp = useSearchParams();
   const startParam = sp?.get('start') || '';
   const endParam = sp?.get('end') || '';
@@ -32,23 +37,52 @@ export default function OrderPage({ listing = null, user = null, reviewCount = 0
   const nightsParam = sp?.get('nights') || '';
   const totalParam = sp?.get('total') || '';
 
-  // If listing prop exists, use its data; otherwise fallback to query values / placeholders
   const listingTitle = listing?.title || listing?.description || 'Помешкання для оренди цілком';
   const listingLocation = listing?.location || '';
   const basePrice = listing?.price ?? (totalParam ? Number(totalParam) : 63);
-  const photos = (listing?.photos && listing.photos.length) ? listing.photos : (listing?.imageUrl ? [listing.imageUrl] : ['/images/room-placeholder.jpg']);
+  const photos =
+    listing?.photos?.length
+      ? listing.photos
+      : listing?.imageUrl
+      ? [listing.imageUrl]
+      : ['/images/room-placeholder.jpg'];
   const thumb = photos[0];
 
-  // derive booking info (prefer query params when present)
   const start = startParam || '';
   const end = endParam || '';
-  const guests = guestsParam || String((listing && listing.details?.guests) || '1');
+  const guests = guestsParam || String(listing?.details?.guests || '1');
   const nights = Number(nightsParam || calcNights(start, end) || 1);
-  const total = String(parseInt(totalParam) + 20) || String((basePrice * nights + 20).toFixed(2));
+  const total =
+    String(parseInt(totalParam) + 20) ||
+    String((basePrice * nights + 20).toFixed(2));
 
-  const avgRating = reviews && reviews.length
-    ? (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1)
-    : null;
+  const avgRating =
+    reviews && reviews.length
+      ? (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length).toFixed(1)
+      : null;
+
+  const [selectedCode, setSelectedCode] = useState('+380');
+  const [phone, setPhone] = useState('');
+  const [isValid, setIsValid] = useState(true);
+
+  const selectedCountry = countryCodes.find(c => c.code === selectedCode);
+
+  function handlePhoneChange(e) {
+    const value = e.target.value.replace(/\D/g, '');
+    const fullPhone = selectedCode + value;
+    setPhone(value);
+    setIsValid(selectedCountry?.pattern?.test(fullPhone));
+  }
+
+  const options = useMemo(
+    () =>
+      countryCodes.map((c) => (
+        <option key={c.code} value={c.code}>
+          {c.name} ({c.code})
+        </option>
+      )),
+    []
+  );
 
   return (
     <div className={styles.page}>
@@ -58,45 +92,79 @@ export default function OrderPage({ listing = null, user = null, reviewCount = 0
 
           <div className={styles.infoCard}>
             <div className={styles.badge}>Це рідкісна знахідка</div>
-            <p className={styles.infoText}>Помешкання господаря {user?.name || 'Марія'} зазвичай заброньоване.</p>
+            <p className={styles.infoText}>
+              Помешкання господаря {user?.name || 'Марія'} зазвичай заброньоване.
+            </p>
           </div>
 
           <h2 className={styles.sectionTitle}>Ваша подорож</h2>
 
           <div className={styles.rowBetween}>
             <div className={styles.label}>Дати</div>
-            <div className={styles.action}>Редагувати</div>
           </div>
-
-          <div className={styles.muted}>{start ? fmt(start) + ' — ' + (end ? fmt(end) : '') : 'Не вибрано'}</div>
+          <div className={styles.muted}>
+            {start ? fmt(start) + ' — ' + (end ? fmt(end) : '') : 'Не вибрано'}
+          </div>
 
           <div className={styles.rowBetween} style={{ marginTop: '18px' }}>
             <div className={styles.label}>Гості</div>
-            <div className={styles.action}>Редагувати</div>
           </div>
-          <div className={styles.muted}>{guests} {Number(guests) === 1 ? 'гість' : 'гостей'}</div>
+          <div className={styles.muted}>
+            {guests} {Number(guests) === 1 ? 'гість' : 'гостей'}
+          </div>
 
-          <h3 className={styles.sectionTitle} style={{ marginTop: 26 }}>Варіант оплати</h3>
+          <h3 className={styles.sectionTitle} style={{ marginTop: 26 }}>
+            Варіант оплати
+          </h3>
 
           <div className={styles.paymentOptions}>
             <label className={styles.paymentItem}>
               <input type="radio" name="pay" defaultChecked />
               <div className={styles.payContent}>
                 <div className={styles.payTitle}>Оплатити в повному обсязі</div>
-                <div className={styles.muted}>{total ? `Сплатіть усю суму ($${total}) одразу.` : 'Сплатіть суму при оформленні.'}</div>
+                <div className={styles.muted}>
+                  {total
+                    ? `Сплатіть усю суму ($${total}) одразу.`
+                    : 'Сплатіть суму при оформленні.'}
+                </div>
               </div>
             </label>
           </div>
 
-          <h3 className={styles.sectionTitle} style={{ marginTop: 28 }}>Вкажіть номер телефону, щоб зробити бронювання</h3>
+          <h3 className={styles.sectionTitle} style={{ marginTop: 28 }}>
+            Вкажіть номер телефону, щоб зробити бронювання
+          </h3>
 
           <div className={styles.formBlock}>
-            <select className={styles.select}>
-              <option>Україна (+380)</option>
+            <select
+              className={styles.select}
+              value={selectedCode}
+              onChange={(e) => {
+                setSelectedCode(e.target.value);
+                setIsValid(true);
+              }}
+            >
+              {options}
             </select>
-            <input className={styles.input} placeholder="Номер телефону" />
 
-            <button className={styles.primary}>Продовжити</button>
+            <input
+              className={`${styles.input} ${!isValid ? styles.inputError : ''}`}
+              placeholder="Номер телефону"
+              type="tel"
+              inputMode="numeric"
+              value={phone}
+              onChange={handlePhoneChange}
+            />
+
+            {!isValid && (
+              <div className={styles.errorText}>
+                Невірний формат номера телефону
+              </div>
+            )}
+
+            <button className={styles.primary} disabled={!isValid || !phone}>
+              Продовжити
+            </button>
 
             <div className={styles.divider}><span>або</span></div>
 
@@ -109,12 +177,17 @@ export default function OrderPage({ listing = null, user = null, reviewCount = 0
             <img src={thumb} alt="room" className={styles.thumb} />
             <div className={styles.cardBody}>
               <div className={styles.roomTitle}>{listingTitle}</div>
-              <div className={styles.muted}>{listingLocation} {avgRating ? `· ★ ${avgRating} · ${reviewCount} відгуків` : ''}</div>
+              <div className={styles.muted}>
+                {listingLocation} {avgRating ? `· ★ ${avgRating} · ${reviewCount} відгуків` : ''}
+              </div>
 
               <div className={styles.hr} />
 
               <div className={styles.priceRow}>
-                <div>${Number(basePrice).toFixed(2)} {nights > 1 ? `× ${nights} ночей` : 'за ніч'}</div>
+                <div>
+                  ${Number(basePrice).toFixed(2)}{' '}
+                  {nights > 1 ? `× ${nights} ночей` : 'за ніч'}
+                </div>
                 <div>${(Number(basePrice) * nights).toFixed(2)}</div>
               </div>
 
