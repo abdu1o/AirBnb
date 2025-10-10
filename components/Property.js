@@ -13,38 +13,32 @@ function formatDate(iso) {
   return new Intl.DateTimeFormat('uk-UA').format(new Date(iso));
 }
 
-const params = new URLSearchParams();
-
-
 const IMG = 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260';
 
 export default function Property({ photos: incomingPhotos, listing, user, reviewCount, reviews }) {
-
-
-
   const photos = (incomingPhotos && incomingPhotos.length)
     ? incomingPhotos
     : [IMG, IMG, IMG, IMG];
 
-  // вычисляем средний рейтинг на основе reviews
+  // Средний рейтинг
   const avgRating = useMemo(() => {
     if (!reviews || reviews.length === 0) return null;
     const sum = reviews.reduce((acc, r) => acc + (r.rating || 0), 0);
     return (sum / reviews.length).toFixed(1);
   }, [reviews]);
 
-  // states for dates
+  // States для дат
   const [selection, setSelection] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // who state
+  // States для гостей
   const [who, setWho] = useState(null);
   const [whoModalOpen, setWhoModalOpen] = useState(false);
 
-  // базовая цена за ночь
+  // Базовая цена за ночь
   const basePrice = useMemo(() => listing.price || 63, [listing]);
 
-  // вычисляем количество ночей
+  // Количество ночей
   const nights = useMemo(() => {
     if (!selection || !selection.start || !selection.end) return 1;
     const start = new Date(selection.start);
@@ -53,20 +47,21 @@ export default function Property({ photos: incomingPhotos, listing, user, review
     return diff > 0 ? diff : 1;
   }, [selection]);
 
-  // итоговая цена
+  // Итоговая цена
   const totalPrice = useMemo(() => basePrice * nights, [basePrice, nights]);
 
   const guestsLabel = who?.label || '1 гість';
 
-  // gallery
+  // Gallery
   const main = photos[0];
   const side = photos.slice(1);
   const countKey = Math.min(photos.length, 4);
   const countClass = `count${countKey}`;
 
+  // URL для перехода на страницу заказа
+  const params = new URLSearchParams();
   if (selection?.start) params.set('start', selection.start);
   if (selection?.end) params.set('end', selection.end);
-  console.log(who)
   params.set('guests', String(who?.label || 1));
   params.set('nights', String(nights));
   params.set('total', String(totalPrice));
@@ -114,9 +109,8 @@ export default function Property({ photos: incomingPhotos, listing, user, review
             <hr />
 
             <h2 className={styles.title}>Кому можна їхати</h2>
-
-            <p className={styles.small}> Діти до 12 років - {listing.childrenAllowed ? "Так" : "Ні"}</p>
-            <p className={styles.small}> Тваринки - {listing.animalsAllowed ? "Так" : "Ні"}</p>
+            <p className={styles.small}>Діти до 12 років - {listing.childrenAllowed ? "Так" : "Ні"}</p>
+            <p className={styles.small}>Тваринки - {listing.animalsAllowed ? "Так" : "Ні"}</p>
           </div>
         </section>
 
@@ -167,9 +161,19 @@ export default function Property({ photos: incomingPhotos, listing, user, review
               </div>
             </div>
 
-            <Link href={href}>
-              <button className={styles.bookButton}>Забронювати</button>
+            <Link href={selection?.start && selection?.end ? href : '#'}>
+              <button
+                className={styles.bookButton}
+                disabled={!selection?.start || !selection?.end}
+                style={{
+                  cursor: !selection?.start || !selection?.end ? 'not-allowed' : 'pointer',
+                  opacity: !selection?.start || !selection?.end ? 0.6 : 1,
+                }}
+              >
+                Забронювати
+              </button>
             </Link>
+
             <div className={styles.note}>Поки що ви нічого не платите</div>
           </div>
         </aside>
@@ -180,9 +184,7 @@ export default function Property({ photos: incomingPhotos, listing, user, review
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         initialRange={selection}
-        onSave={(range) => {
-          setSelection(range);
-        }}
+        onSave={(range) => setSelection(range)}
       />
 
       {/* WhoModal */}
@@ -193,7 +195,6 @@ export default function Property({ photos: incomingPhotos, listing, user, review
         onSave={(payload) => {
           setWho(payload);
           setWhoModalOpen(false);
-          
         }}
       />
     </>

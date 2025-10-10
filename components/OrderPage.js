@@ -63,15 +63,25 @@ export default function OrderPage({ listing = null, user = null, reviewCount = 0
 
   const [selectedCode, setSelectedCode] = useState('+380');
   const [phone, setPhone] = useState('');
-  const [isValid, setIsValid] = useState(true);
+  const [isPhoneValid, setIsPhoneValid] = useState(true);
+
+  const [fullName, setFullName] = useState('');
+  const [isNameValid, setIsNameValid] = useState(true);
 
   const selectedCountry = countryCodes.find(c => c.code === selectedCode);
+
+  function handleNameChange(e) {
+    const value = e.target.value;
+    setFullName(value);
+    const valid = /^[A-Za-zА-Яа-яЇїІіЄєҐґ'’`-]+\s+[A-Za-zА-Яа-яЇїІіЄєҐґ'’`-]+(\s+[A-Za-zА-Яа-яЇїІіЄєҐґ'’`-]+)?$/.test(value.trim());
+    setIsNameValid(valid);
+  }
 
   function handlePhoneChange(e) {
     const value = e.target.value.replace(/\D/g, '');
     const fullPhone = selectedCode + value;
     setPhone(value);
-    setIsValid(selectedCountry?.pattern?.test(fullPhone));
+    setIsPhoneValid(selectedCountry?.pattern?.test(fullPhone));
   }
 
   const options = useMemo(
@@ -83,6 +93,8 @@ export default function OrderPage({ listing = null, user = null, reviewCount = 0
       )),
     []
   );
+
+  const canContinue = isPhoneValid && phone && isNameValid && fullName;
 
   return (
     <div className={styles.page}>
@@ -132,6 +144,25 @@ export default function OrderPage({ listing = null, user = null, reviewCount = 0
           </div>
 
           <h3 className={styles.sectionTitle} style={{ marginTop: 28 }}>
+            Вкажіть повне ім’я
+          </h3>
+
+          <div className={styles.formBlock}>
+            <input
+              className={`${styles.input} ${!isNameValid ? styles.inputError : ''}`}
+              placeholder="Наприклад: Тарас Бульба"
+              type="text"
+              value={fullName}
+              onChange={handleNameChange}
+            />
+            {!isNameValid && (
+              <div className={styles.errorText}>
+                Введіть повне ім’я (мінімум ім’я та прізвище).
+              </div>
+            )}
+          </div>
+
+          <h3 className={styles.sectionTitle} style={{ marginTop: 28 }}>
             Вкажіть номер телефону, щоб зробити бронювання
           </h3>
 
@@ -141,14 +172,14 @@ export default function OrderPage({ listing = null, user = null, reviewCount = 0
               value={selectedCode}
               onChange={(e) => {
                 setSelectedCode(e.target.value);
-                setIsValid(true);
+                setIsPhoneValid(true);
               }}
             >
               {options}
             </select>
 
             <input
-              className={`${styles.input} ${!isValid ? styles.inputError : ''}`}
+              className={`${styles.input} ${!isPhoneValid ? styles.inputError : ''}`}
               placeholder="Номер телефону"
               type="tel"
               inputMode="numeric"
@@ -156,13 +187,13 @@ export default function OrderPage({ listing = null, user = null, reviewCount = 0
               onChange={handlePhoneChange}
             />
 
-            {!isValid && (
+            {!isPhoneValid && (
               <div className={styles.errorText}>
-                Невірний формат номера телефону
+                Невірний формат номера для {selectedCountry?.name}.
               </div>
             )}
 
-            <button className={styles.primary} disabled={!isValid || !phone}>
+            <button className={styles.primary} disabled={!canContinue}>
               Продовжити
             </button>
 
