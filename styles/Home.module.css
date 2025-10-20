@@ -98,6 +98,12 @@
   margin-top: 0.5rem;
 }
 
+.profileLink {
+  border: none;
+  background-color: #fff;
+  cursor: pointer;
+}
+
 /* Responsive rules */
 @media (max-width: 1280px) {
   .nav {

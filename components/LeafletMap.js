@@ -38,7 +38,7 @@ export default function LeafletMap({ lat = 48.43333, lng = 33.4234, zoom = 14, h
       <Marker position={center} icon={hfuIcon}>
         <Popup>
           <div style={{ maxWidth: 240 }}>
-            <strong>HFU</strong>
+            <strong>BNB</strong>
             <div style={{ marginTop: 6, fontSize: 13 }}>{popupText}</div>
           </div>
         </Popup>
