@@ -126,7 +126,7 @@ export function RegisterPhoneModal({ isOpen, onClose, onContinue }) {
 
         <div className={regStyles.sepRow}>
           <span className={regStyles.sepLine} />
-          <span className={regStyles.sepText}>или</span>
+          <span className={regStyles.sepText}>або</span>
           <span className={regStyles.sepLine} />
         </div>
 
@@ -297,7 +297,7 @@ export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
           {/* separator 'или' */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 14 }}>
             <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.06)' }} />
-            <div style={{ fontSize: 13, color: '#666' }}>или</div>
+            <div style={{ fontSize: 13, color: '#666' }}>або</div>
             <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.06)' }} />
           </div>
 
@@ -307,7 +307,7 @@ export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
               <span className={regStyles.iconWrap}>
                 <FaGoogle size={15}/>
               </span>
-              <span>З допомогою Google</span>
+              <span>За допомогою Google</span>
             </button>
 
             <button type="button" className={regStyles.outlineBtn} onClick={() => { console.log('Open phone login flow (frontend only)'); onClose && onClose(); onOpenLogin && onOpenLogin(); }}>
@@ -316,7 +316,7 @@ export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
                   <path fill="currentColor" d="M6.6 10.8a15.07 15.07 0 006.6 6.6l1.9-1.9a1 1 0 01.9-.3c1 .3 2 .5 2.9.5a1 1 0 011 1v3.1a1 1 0 01-1 1C10.1 22 2 13.9 2 3.9a1 1 0 011-1H6a1 1 0 011 1c0 1 .1 1.9.3 2.9a1 1 0 01-.3.9l-1.9 1.9z"/>
                 </svg>
               </span>
-              <span>Увійти по телефону</span>
+              <span>Увійти по номеру телефона</span>
             </button>
           </div>
         </form>

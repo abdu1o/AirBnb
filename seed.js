@@ -55,7 +55,7 @@ async function seed() {
 
   const listings = [
     {
-      title: "Odesa, Ukraine",
+      title: "Одеса, Україна",
       price: 70,
       location: "Біля моря",
       dateFrom: "2025-11-01",
@@ -74,7 +74,7 @@ async function seed() {
       categories: [categoryIds[8], categoryIds[0]]
     },
     {
-      title: "Odesa, Ukraine",
+      title: "Одеса, Україна",
       price: 100,
       location: "Біля моря",
       dateFrom: "2025-11-02",
@@ -93,7 +93,7 @@ async function seed() {
       categories: [categoryIds[8], categoryIds[7]]
     },
     {
-      title: "Odesa, Ukraine",
+      title: "Одеса, Україна",
       price: 70,
       location: "Біля моря",
       dateFrom: "2025-11-01",
@@ -112,7 +112,7 @@ async function seed() {
       categories: [categoryIds[8], categoryIds[2]]
     },
     {
-      title: "Lviv, Ukraine",
+      title: "Львів, Україна",
       price: 85,
       location: "Центр",
       dateFrom: "2025-10-10",
@@ -131,7 +131,7 @@ async function seed() {
       categories: [categoryIds[5], categoryIds[0]]
     },
     {
-      title: "Kyiv, Ukraine",
+      title: "Київ, Україна",
       price: 120,
       location: "Поділ",
       dateFrom: "2025-09-20",
@@ -150,7 +150,7 @@ async function seed() {
       categories: [categoryIds[5], categoryIds[2]]
     },
     {
-      title: "Kharkiv, Ukraine",
+      title: "Харків, Україна",
       price: 60,
       location: "Північ",
       dateFrom: "2025-08-15",
@@ -169,7 +169,7 @@ async function seed() {
       categories: [categoryIds[1]]
     },
     {
-      title: "Dnipro, Ukraine",
+      title: "Дніпро, Україна",
       price: 90,
       location: "Набережна",
       dateFrom: "2025-10-01",
@@ -188,7 +188,7 @@ async function seed() {
       categories: [categoryIds[8], categoryIds[0]]
     },
     {
-      title: "Poltava, Ukraine",
+      title: "Полтава, Україна",
       price: 55,
       location: "Біля парку",
       dateFrom: "2025-08-11",
@@ -207,7 +207,7 @@ async function seed() {
       categories: [categoryIds[1], categoryIds[6]]
     },
     {
-      title: "Lutsk, Ukraine",
+      title: "Луцьк, Україна",
       price: 48,
       location: "Старе місто",
       dateFrom: "2025-09-01",
@@ -226,7 +226,7 @@ async function seed() {
       categories: [categoryIds[5], categoryIds[10]]
     },
     {
-      title: "Rivne, Ukraine",
+      title: "Рівне, Україна",
       price: 50,
       location: "Центр",
       dateFrom: "2025-10-06",
@@ -244,8 +244,8 @@ async function seed() {
       exactAddress: "вул. Шевченка, 18",
       categories: [categoryIds[1], categoryIds[5]]
     },
-        {
-      title: "Ivano-Frankivsk, Ukraine",
+    {
+      title: "Івано-Франківськ, Україна",
       price: 65,
       location: "Центр",
       dateFrom: "2025-09-15",
@@ -264,7 +264,7 @@ async function seed() {
       categories: [categoryIds[5], categoryIds[1]]
     },
     {
-      title: "Vinnytsia, Ukraine",
+      title: "Вінниця, Україна",
       price: 70,
       location: "Центр",
       dateFrom: "2025-09-25",
@@ -283,7 +283,7 @@ async function seed() {
       categories: [categoryIds[5], categoryIds[10]]
     },
     {
-      title: "Chernihiv, Ukraine",
+      title: "Чернігів, Україна",
       price: 52,
       location: "Центр",
       dateFrom: "2025-08-21",
@@ -302,7 +302,7 @@ async function seed() {
       categories: [categoryIds[5]]
     },
     {
-      title: "Uzhhorod, Ukraine",
+      title: "Ужгород, Україна",
       price: 58,
       location: "Центр",
       dateFrom: "2025-10-02",
@@ -321,7 +321,7 @@ async function seed() {
       categories: [categoryIds[5], categoryIds[10]]
     },
     {
-      title: "Zaporizhzhia, Ukraine",
+      title: "Запоріжжя, Україна",
       price: 75,
       location: "Біля Дніпра",
       dateFrom: "2025-09-12",
@@ -340,7 +340,7 @@ async function seed() {
       categories: [categoryIds[8], categoryIds[0]]
     },
     {
-      title: "Ternopil, Ukraine",
+      title: "Тернопіль, Україна",
       price: 53,
       location: "Центр",
       dateFrom: "2025-09-18",
@@ -359,7 +359,7 @@ async function seed() {
       categories: [categoryIds[0], categoryIds[6]]
     },
     {
-      title: "Mykolaiv, Ukraine",
+      title: "Миколаїв, Україна",
       price: 62,
       location: "Центр",
       dateFrom: "2025-10-15",
@@ -378,7 +378,7 @@ async function seed() {
       categories: [categoryIds[5]]
     },
     {
-      title: "Sumy, Ukraine",
+      title: "Суми, Україна",
       price: 49,
       location: "Центр",
       dateFrom: "2025-09-07",
@@ -397,7 +397,7 @@ async function seed() {
       categories: [categoryIds[1], categoryIds[5]]
     },
     {
-      title: "Chernivtsi, Ukraine",
+      title: "Червнівці, Україна",
       price: 66,
       location: "Центр",
       dateFrom: "2025-10-05",
@@ -416,7 +416,7 @@ async function seed() {
       categories: [categoryIds[10], categoryIds[5]]
     },
     {
-      title: "Mariupol, Ukraine",
+      title: "Маріуполь, Україна",
       price: 72,
       location: "Біля моря",
       dateFrom: "2025-09-27",
