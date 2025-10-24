@@ -1,0 +1,182 @@
+/* Register.module.css */
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: #fafafa;
+  box-sizing: border-box;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.title {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  text-align: center;
+  color: #111;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: #333;
+}
+
+.input {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.12);
+  font-size: 14px;
+  outline: none;
+}
+
+.input:focus {
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.08); /* subtle focus */
+  border-color: rgba(59,130,246,0.6);
+}
+
+.error {
+  color: #b00020;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+/* Actions: center the primary button */
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+/* Primary blue button, centered and full-ish width */
+.primaryBtn {
+  background: linear-gradient(180deg, #2d9cdb, #2386c8);
+  color: #fff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 320px;
+  box-shadow: 0 6px 14px rgba(35,134,200,0.18);
+}
+
+.primaryBtn:hover {
+  transform: translateY(-1px);
+}
+
+/* Separator */
+.sepRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 14px;
+}
+
+.sepLine {
+  height: 1px;
+  background: rgba(0,0,0,0.08);
+  flex: 1;
+  border-radius: 1px;
+}
+
+.sepText {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+}
+
+/* Socials */
+.socials {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Outline button style */
+.outlineBtn {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* icon wrapper */
+.iconWrap {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* small note */
+.smallNote {
+  margin-top: 14px;
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+}
+
+/* responsive tweaks */
+@media (max-width: 420px) {
+  .card {
+    padding: 16px;
+    border-radius: 10px;
+  }
+  .primaryBtn { max-width: 100%; }
+}
+
+/* Modal dialog box (rounded, subtle border like mockup) */
+.regmodal {
+  width: 30%;
+  max-width: 980px; /* about the size in your mockup */
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 12px 40px rgba(20,20,20,0.18);
+  padding: 22px;
+  position: relative;
+  color: #222;
+}
+
+
+@media (max-width: 1400px) {
+  .regmodal {
+  width: 50%;
+  }
+}
+
+@media (max-width: 900px) {
+  .regmodal {
+  width: 90%;
+  }
+}

@@ -112,9 +112,9 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ minWidth: 90 }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <button onClick={() => dec(setInfants, infants)} className={styles.chip}>−</button>
+                <button onClick={() => dec(setInfants, infants)} className={styles.chip} style={{ padding: '6px 10px' }}>−</button>
                 <div className={styles.countDisplay}>{infants}</div>
-                <button onClick={() => inc(setInfants, infants)} className={styles.chip}>+</button>
+                <button onClick={() => inc(setInfants, infants)} className={styles.chip} style={{ padding: '6px 10px' }}>+</button>
               </div>
             </div>
 
@@ -122,9 +122,9 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ minWidth: 90 }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <button onClick={() => dec(setPets, pets)} className={styles.chip}>−</button>
+                <button onClick={() => dec(setPets, pets)} className={styles.chip} style={{ padding: '6px 10px' }}>−</button>
                 <div className={styles.countDisplay}>{pets}</div>
-                <button onClick={() => inc(setPets, pets)} className={styles.chip}>+</button>
+                <button onClick={() => inc(setPets, pets)} className={styles.chip} style={{ padding: '6px 10px' }}>+</button>
               </div>
             </div>
           </div>

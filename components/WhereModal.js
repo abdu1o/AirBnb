@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import styles from '../styles/Modals.module.css';
 import { feature } from 'topojson-client';
-import { geoMercator, geoPath } from 'd3-geo';
+import { geoMercator, geoPath, geoCentroid } from 'd3-geo'; // <-- додав geoCentroid
 
 export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
   const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
@@ -15,7 +15,6 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
 
-  // responsive size for the map container
   const [size, setSize] = useState({ width: 980, height: 420 });
   const margin = 10;
 
@@ -44,14 +43,12 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
     }
   }, [isOpen, initialWhere]);
 
-  // ResizeObserver to make the map responsive
   useEffect(() => {
     if (!containerRef.current) return;
     const el = containerRef.current;
 
     const update = () => {
       const w = Math.max(280, Math.min(980, el.clientWidth || 980));
-      // height relative to width but constrained
       const h = Math.max(220, Math.round(w * 0.45));
       setSize({ width: Math.round(w), height: Math.round(h) });
     };
@@ -61,7 +58,6 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
     const ro = new ResizeObserver(() => update());
     ro.observe(el);
 
-    // also update on window resize fallback
     const onWin = () => update();
     window.addEventListener('resize', onWin);
 
@@ -81,23 +77,48 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
     return { projection: proj, pathGen: path };
   }, [geojson, size.width, size.height]);
 
-  const onCountryClick = (featureObj) => {
-    const name = featureObj.properties?.name || featureObj.properties?.NAME || 'Unknown';
-    setSelected({ label: name, lat: null, lon: null });
-    setQuery(name);
-    setResults([]);
+  // при кліку на країну — використовуємо geoCentroid + reverse geocoding в українській
+  const onCountryClick = async (featureObj) => {
+    try {
+      const centroid = geoCentroid(featureObj); // [lon, lat]
+      const lon = centroid[0];
+      const lat = centroid[1];
+
+      // Запит reverse geocoding з українською локалізацією
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&addressdetails=1`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'uk' } });
+      if (!res.ok) throw new Error('Reverse geocode failed');
+      const data = await res.json();
+
+      // беремо українську назву країни/регіону з address або display_name
+      const addr = data.address || {};
+      const countryName = addr.country || data.display_name || featureObj.properties?.name || 'Unknown';
+
+      setSelected({ label: countryName, lat: String(lat), lon: String(lon) });
+      setQuery(countryName);
+      setResults([]);
+    } catch (err) {
+      // fallback — використовуємо властивість з фічі (англомовну), але збережемо lat/lon = null
+      const name = featureObj.properties?.name || featureObj.properties?.NAME || 'Unknown';
+      setSelected({ label: name, lat: null, lon: null });
+      setQuery(name);
+      setResults([]);
+    }
   };
 
+  // Пошук — просимо Nominatim відповідати українською
   const doSearch = async (q) => {
     if (!q || q.length < 2) { setResults([]); return; }
     try {
       const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&q=${encodeURIComponent(q)}`;
-      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      // ВАЖЛИВО: Accept-Language: 'uk'
+      const res = await fetch(url, { headers: { 'Accept-Language': 'uk' } });
       const data = await res.json();
       const mapped = data.map(r => {
         const addr = r.address || {};
         const city = addr.city || addr.town || addr.village || addr.county;
         const country = addr.country;
+        // display_name буде вже локалізований (якщо є)
         const label = city && country ? `${city}, ${country}` : (r.display_name || `${r.lat},${r.lon}`);
         return { label, lat: r.lat, lon: r.lon, raw: r };
       });
@@ -146,7 +167,7 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
           <input
             value={query}
             onChange={(e) => { setQuery(e.target.value); doSearch(e.target.value); }}
-            placeholder="Пошук міста (наприклад: Odesa)"
+            placeholder="Пошук міста (наприклад: Одеса)"
             style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' }}
           />
           <button className={styles.chip} onClick={() => { setQuery(''); setResults([]); setSelected(null); }}>Очистити</button>
@@ -163,7 +184,6 @@ export default function WhereModal({ isOpen, onClose, initialWhere, onSave }) {
           </div>
         )}
 
-        {/* containerRef used to measure available width/height */}
         <div
           ref={containerRef}
           style={{ width: '100%', height: size.height, overflow: 'hidden', borderRadius: 10, border: '1px solid rgba(0,0,0,0.06)' }}
