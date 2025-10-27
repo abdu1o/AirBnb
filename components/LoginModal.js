@@ -212,7 +212,7 @@ export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-        credentials: 'include', // важно для cookie
+        credentials: 'include',
       });
 
       const data = await res.json();
@@ -221,7 +221,7 @@ export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
         toast.error(data?.error || 'Помилка при створенні користувача');
       } else {
         toast.success('Реєстрація успішна!');
-        // сразу ставим пользователя в контекст
+
         setUser(data.user);
 
         setEmail('');
@@ -359,7 +359,7 @@ export function LoginModal({ isOpen, onClose }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login, password }),
-        credentials: 'include', // важно, чтобы cookie приходила
+        credentials: 'include',
       });
 
       const data = await res.json();
@@ -368,7 +368,7 @@ export function LoginModal({ isOpen, onClose }) {
         toast.error(data?.error || 'Помилка входу');
       } else {
         toast.success('Вхід успішний!');
-        // Обновляем контекст пользователя
+
         setUser(data.user);
 
         setLogin('');
@@ -377,6 +377,7 @@ export function LoginModal({ isOpen, onClose }) {
         setTimeout(() => {
           onClose && onClose();
         }, 1000);
+        window.location.reload();
       }
     } catch (err) {
       console.error('Login fetch error:', err);
