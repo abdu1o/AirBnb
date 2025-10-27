@@ -4,10 +4,12 @@ import ProfileFields from '../components/ProfileFields';
 import ProfileSection from '../components/ProfileSection';
 import ProfileInterests from '../components/ProfileInterests';
 import styles from '../styles/Profile.module.css';
+import { AuthProvider } from '../context/AuthContext';
 
 export default function Profile() {
   return (
-    <div className={styles.page}>
+    <AuthProvider>
+      <div className={styles.page}>
       <Header />
       <main className={styles.main}>
         <ProfileHeader />
@@ -18,5 +20,6 @@ export default function Profile() {
         </div>
       </main>
     </div>
+    </AuthProvider>
   );
 }

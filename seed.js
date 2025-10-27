@@ -24,18 +24,20 @@ async function seed() {
         name: 'John Doe', 
         email: 'john@example.com',
         password: 'qwe123',
-        phoneNumber: '+380123456789',
-        avatarUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/users/user1.png'
+        phone: '+380123456789',
+        avatarUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/users/user1.png',
+        dob: '1990-05-12'
       },
       { 
         name: 'Alice Smith', 
         email: 'alice@example.com',
         password: 'zxc123',
-        phoneNumber: '+380501234567',
-        avatarUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/users/user2.png'
+        phone: '+380501234567',
+        avatarUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/users/user2.png',
+        dob: '1995-08-22'
       }
     ];
-
+    
     const userResult = await db.collection('users').insertMany(users);
     const userIds = Object.values(userResult.insertedIds);
 
