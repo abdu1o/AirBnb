@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import styles from '../styles/Modals.module.css';
 import regStyles from '../styles/Register.module.css';
 import { FaGoogle } from "react-icons/fa";
-
+import toast, { Toaster } from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 
 // PhoneAuthModal
 export function PhoneAuthModal({ isOpen, onClose, onSubmit, title = 'Підтвердження номера' }) {
@@ -57,7 +58,7 @@ export function PhoneAuthModal({ isOpen, onClose, onSubmit, title = 'Підтв�
 // RegisterPhoneModal (modal-styled, uses regStyles)
 export function RegisterPhoneModal({ isOpen, onClose, onContinue }) {
   const [phone, setPhone] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [name, setDisplayName] = useState('');
   const [dob, setDob] = useState('');
   const [error, setError] = useState('');
 
@@ -72,7 +73,7 @@ export function RegisterPhoneModal({ isOpen, onClose, onContinue }) {
       return;
     }
     setError('');
-    const payload = { phone, displayName, dob };
+    const payload = { phone, name, dob };
     console.log('Register by phone payload:', payload);
     onContinue && onContinue(payload);
     onClose && onClose();
@@ -98,10 +99,10 @@ export function RegisterPhoneModal({ isOpen, onClose, onContinue }) {
           </label>
 
           <label className={regStyles.label}>
-            Ім'я для відображення (необов'язково)
+            Ім&apos;я для відображення (необов&apos;язково)
             <input
               className={regStyles.input}
-              value={displayName}
+              value={name}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Як вас бачать інші"
             />
@@ -158,13 +159,15 @@ export function RegisterPhoneModal({ isOpen, onClose, onContinue }) {
 
 // RegisterModal (updated layout: primary register button centered, blue; below it - login blue button; then 'или' and social/phone buttons)
 export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
+  const { setUser } = useAuth();
   const [email, setEmail] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [name, setDisplayName] = useState('');
   const [dob, setDob] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
@@ -172,8 +175,21 @@ export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
     const err = {};
     if (!email) err.email = 'Введіть email';
     if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) err.email = 'Невірний формат email';
-    if (!displayName) err.displayName = 'Введіть ім\"я для відображення';
-    if (!dob) err.dob = 'Введіть дату народження';
+    if (!name) err.name = 'Введіть ім’я для відображення';
+
+    if (!dob) {
+      err.dob = 'Введіть дату народження';
+    } else {
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const isBeforeBirthday =
+        today.getMonth() < birthDate.getMonth() ||
+        (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate());
+      if (isBeforeBirthday) age -= 1;
+      if (age < 18) err.dob = 'Вам має бути щонайменше 18 років';
+    }
+
     if (!phone || !/^\+?[0-9]{6,15}$/.test(phone)) err.phone = 'Введіть коректний номер телефону';
     if (!password) err.password = 'Введіть пароль';
     if (password && password.length < 6) err.password = 'Пароль має бути щонайменше 6 символів';
@@ -181,211 +197,239 @@ export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
     return err;
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     const err = validate();
     setErrors(err);
     if (Object.keys(err).length > 0) return;
 
-    const payload = { email, displayName, dob, phone, password };
-    console.log('Register payload:', payload);
+    setIsSubmitting(true);
 
-    onClose && onClose();
-    onOpenLogin && onOpenLogin();
+    const payload = { email, name, dob, phone, password };
 
-    setEmail(''); setDisplayName(''); setDob(''); setPhone(''); setPassword(''); setConfirm(''); setErrors({});
+    try {
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data?.error || 'Помилка при створенні користувача');
+      } else {
+        toast.success('Реєстрація успішна!');
+
+        setUser(data.user);
+
+        setEmail('');
+        setDisplayName('');
+        setDob('');
+        setPhone('');
+        setPassword('');
+        setConfirm('');
+
+        setTimeout(() => {
+          onClose && onClose();
+        }, 1000);
+      }
+    } catch (err) {
+      console.error('Fetch error:', err);
+      toast.error('Помилка зʼєднання з сервером');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleGoogleRegister = () => {
-    console.log('Simulate Google registration started');
+    toast('Реєстрація через Google...');
     setTimeout(() => {
-      console.log('Simulated Google sign-in success (frontend)');
+      toast.success('Успішний вхід через Google!');
       onClose && onClose();
       onOpenPhone && onOpenPhone();
     }, 600);
   };
 
+  const inputStyle = { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' };
+  const errorStyle = { color: 'crimson', fontSize: 13, marginTop: 4 };
+
   return (
-    <div className={styles.overlay} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose && onClose(); }}>
-      <div className={regStyles.regmodal} onMouseDown={(e) => e.stopPropagation()}>
-        <button className={styles.closeButton} onClick={() => onClose && onClose()}>✕</button>
-        <h3 style={{ textAlign: 'center', margin: '8px 0 14px' }}>Реєстрація</h3>
+    <>
+      <Toaster position="top-right" reverseOrder={false} />
+      <div className={styles.overlay} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose && onClose(); }}>
+        <div className={regStyles.regmodal} onMouseDown={(e) => e.stopPropagation()}>
+          <button className={styles.closeButton} onClick={() => onClose && onClose()}>✕</button>
+          <h3 style={{ textAlign: 'center', margin: '8px 0 14px' }}>Реєстрація</h3>
+          <form onSubmit={onSubmit}>
+            <label style={{ display: 'block', marginBottom: 8 }}>
+              <div style={{ fontSize: 13, marginBottom: 6 }}>Email</div>
+              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@domain.com" style={inputStyle} />
+              {errors.email && <div style={errorStyle}>{errors.email}</div>}
+            </label>
 
-        <form onSubmit={onSubmit}>
-          <label style={{ display: 'block', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, marginBottom: 6 }}>Email</div>
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@domain.com"
-              style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' }}
-            />
-            {errors.email && <div style={{ color: 'crimson', fontSize: 12 }}>{errors.email}</div>}
-          </label>
+            <label style={{ display: 'block', marginBottom: 8 }}>
+              <div style={{ fontSize: 13, marginBottom: 6 }}>Ім’я для відображення</div>
+              <input value={name} onChange={(e) => setDisplayName(e.target.value)} placeholder="Як вас бачать інші" style={inputStyle} />
+              {errors.name && <div style={errorStyle}>{errors.name}</div>}
+            </label>
 
-          <label style={{ display: 'block', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, marginBottom: 6 }}>Ім'я для відображення</div>
-            <input
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Як вас бачать інші"
-              style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' }}
-            />
-            {errors.displayName && <div style={{ color: 'crimson', fontSize: 12 }}>{errors.displayName}</div>}
-          </label>
+            <label style={{ display: 'block', marginBottom: 8 }}>
+              <div style={{ fontSize: 13, marginBottom: 6 }}>Дата народження</div>
+              <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} style={inputStyle} />
+              {errors.dob && <div style={errorStyle}>{errors.dob}</div>}
+            </label>
 
-          <label style={{ display: 'block', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, marginBottom: 6 }}>Дата народження</div>
-            <input
-              type="date"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-              style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' }}
-            />
-            {errors.dob && <div style={{ color: 'crimson', fontSize: 12 }}>{errors.dob}</div>}
-          </label>
+            <label style={{ display: 'block', marginBottom: 8 }}>
+              <div style={{ fontSize: 13, marginBottom: 6 }}>Номер телефону</div>
+              <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+380501234567" style={inputStyle} />
+              {errors.phone && <div style={errorStyle}>{errors.phone}</div>}
+            </label>
 
-          <label style={{ display: 'block', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, marginBottom: 6 }}>Номер телефону</div>
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+380501234567"
-              style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' }}
-            />
-            {errors.phone && <div style={{ color: 'crimson', fontSize: 12 }}>{errors.phone}</div>}
-          </label>
+            <label style={{ display: 'block', marginBottom: 8 }}>
+              <div style={{ fontSize: 13, marginBottom: 6 }}>Пароль</div>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Щонайменше 6 символів" style={inputStyle} />
+              {errors.password && <div style={errorStyle}>{errors.password}</div>}
+            </label>
 
-          <label style={{ display: 'block', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, marginBottom: 6 }}>Пароль</div>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Щонайменше 6 символів"
-              style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' }}
-            />
-            {errors.password && <div style={{ color: 'crimson', fontSize: 12 }}>{errors.password}</div>}
-          </label>
+            <label style={{ display: 'block', marginBottom: 8 }}>
+              <div style={{ fontSize: 13, marginBottom: 6 }}>Підтвердіть пароль</div>
+              <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Повторіть пароль" style={inputStyle} />
+              {errors.confirm && <div style={errorStyle}>{errors.confirm}</div>}
+            </label>
 
-          <label style={{ display: 'block', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, marginBottom: 6 }}>Підтвердіть пароль</div>
-            <input
-              type="password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              placeholder="Повторіть пароль"
-              style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' }}
-            />
-            {errors.confirm && <div style={{ color: 'crimson', fontSize: 12 }}>{errors.confirm}</div>}
-          </label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', marginTop: 12 }}>
+              <button type="submit" className={regStyles.outlineBtn} style={{ width: '100%', opacity: isSubmitting ? 0.7 : 1 }} disabled={isSubmitting}>
+                {isSubmitting ? 'Реєстрація...' : 'Зареєструватися'}
+              </button>
 
-          {/* Primary buttons stacked and centered */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', marginTop: 12 }}>
-            <button type="submit" className={regStyles.outlineBtn} style={{ width: '100%' }}>Зареєструватися</button>
+              <button type="button" className={regStyles.outlineBtn} style={{ width: '100%', background: '#6b5e4b', color: '#fff' }} onClick={() => { onClose && onClose(); onOpenLogin && onOpenLogin(); }}>
+                Увійти
+              </button>
+            </div>
 
-            <button
-              type="button"
-              className={regStyles.outlineBtn}
-              style={{ width: '100%', background: '#6b5e4b', color: '#fff' }}
-              onClick={() => { onClose && onClose(); onOpenLogin && onOpenLogin(); }}
-            >
-              Увійти
+            <div style={{ display: 'flex', alignItems: 'center', margin: '16px 0' }}>
+              <div style={{ flex: 1, height: 1, background: '#ddd' }}></div>
+              <span style={{ margin: '0 8px', fontSize: 12, color: '#777' }}>або</span>
+              <div style={{ flex: 1, height: 1, background: '#ddd' }}></div>
+            </div>
+
+            <button type="button" onClick={handleGoogleRegister} className={regStyles.outlineBtn} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <FaGoogle /> Продовжити з Google
             </button>
-          </div>
-
-          {/* separator 'или' */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 14 }}>
-            <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.06)' }} />
-            <div style={{ fontSize: 13, color: '#666' }}>або</div>
-            <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.06)' }} />
-          </div>
-
-          {/* social / phone buttons */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
-            <button type="button" className={regStyles.outlineBtn} onClick={handleGoogleRegister}>
-              <span className={regStyles.iconWrap}>
-                <FaGoogle size={15}/>
-              </span>
-              <span>За допомогою Google</span>
-            </button>
-
-            <button type="button" className={regStyles.outlineBtn} onClick={() => { console.log('Open phone login flow (frontend only)'); onClose && onClose(); onOpenLogin && onOpenLogin(); }}>
-              <span className={regStyles.iconWrap}>
-                <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <path fill="currentColor" d="M6.6 10.8a15.07 15.07 0 006.6 6.6l1.9-1.9a1 1 0 01.9-.3c1 .3 2 .5 2.9.5a1 1 0 011 1v3.1a1 1 0 01-1 1C10.1 22 2 13.9 2 3.9a1 1 0 011-1H6a1 1 0 011 1c0 1 .1 1.9.3 2.9a1 1 0 01-.3.9l-1.9 1.9z"/>
-                </svg>
-              </span>
-              <span>Увійти по номеру телефона</span>
-            </button>
-          </div>
-        </form>
-
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
+const inputStyle = {
+  width: '100%',
+  padding: '8px 10px',
+  borderRadius: 8,
+  border: '1px solid rgba(0,0,0,0.12)',
+};
+
+const errorStyle = { color: 'crimson', fontSize: 12 };
+
 // LoginModal
-export function LoginModal({ isOpen, onClose, onLogin }) {
+export function LoginModal({ isOpen, onClose }) {
+  const { setUser } = useAuth();
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     if (!login || !password) {
       setError('Введіть логін і пароль');
       return;
     }
+
     setError('');
-    console.log('Login payload:', { login, password });
-    onClose && onClose();
-    onLogin && onLogin({ login });
-    setLogin('');
-    setPassword('');
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login, password }),
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data?.error || 'Помилка входу');
+      } else {
+        toast.success('Вхід успішний!');
+
+        setUser(data.user);
+
+        setLogin('');
+        setPassword('');
+
+        setTimeout(() => {
+          onClose && onClose();
+        }, 1000);
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error('Login fetch error:', err);
+      toast.error('Помилка з’єднання з сервером');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className={styles.overlay} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose && onClose(); }}>
-      <div className={regStyles.regmodal} onMouseDown={(e) => e.stopPropagation()}>
-        <button className={styles.closeButton} onClick={() => onClose && onClose()}>✕</button>
-        <h3 style={{ textAlign: 'center', margin: '8px 0 14px' }}>Увійти</h3>
+    <>
+      <Toaster position="top-right" reverseOrder={false} />
 
-        <form onSubmit={onSubmit}>
-          <label style={{ display: 'block', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, marginBottom: 6 }}>Логін (email або номер телефону)</div>
-            <input
-              value={login}
-              onChange={(e) => setLogin(e.target.value)}
-              placeholder="Ваш логін"
-              style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' }}
-            />
-          </label>
+      <div className={styles.overlay} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose && onClose(); }}>
+        <div className={regStyles.regmodal} onMouseDown={(e) => e.stopPropagation()}>
+          <button className={styles.closeButton} onClick={() => onClose && onClose()}>✕</button>
+          <h3 style={{ textAlign: 'center', margin: '8px 0 14px' }}>Увійти</h3>
 
-          <label style={{ display: 'block', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, marginBottom: 6 }}>Пароль</div>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Ваш пароль"
-              style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' }}
-            />
-          </label>
+          <form onSubmit={onSubmit}>
+            <label style={{ display: 'block', marginBottom: 8 }}>
+              <div style={{ fontSize: 13, marginBottom: 6 }}>Логін (email або телефон)</div>
+              <input
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
+                placeholder="example@domain.com або +380..."
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' }}
+              />
+            </label>
 
-          {error && <div style={{ color: 'crimson', fontSize: 13, marginBottom: 8 }}>{error}</div>}
+            <label style={{ display: 'block', marginBottom: 8 }}>
+              <div style={{ fontSize: 13, marginBottom: 6 }}>Пароль</div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Ваш пароль"
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' }}
+              />
+            </label>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
-            <button type="button" className={styles.chip} onClick={() => onClose && onClose()}>Скасувати</button>
-            <button className={styles.chip} type="submit">Увійти</button>
-          </div>
-        </form>
+            {error && <div style={{ color: 'crimson', fontSize: 13, marginBottom: 8 }}>{error}</div>}
 
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
+              <button type="button" className={styles.chip} onClick={() => onClose && onClose()}>Скасувати</button>
+              <button className={styles.chip} type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Вхід...' : 'Увійти'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

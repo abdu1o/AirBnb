@@ -7,6 +7,7 @@ import AppendData from '../components/AppendData';
 import Additional from '../components/Additional';
 import Footer from '../components/Footer';
 import { getListings } from '../lib/listings';
+import { AuthProvider } from '../context/AuthContext';
 
 export default function Home({ initialListings }) {
   const [listings, setListings] = useState(initialListings);
@@ -35,7 +36,7 @@ export default function Home({ initialListings }) {
   };
 
   return (
-    <>
+    <AuthProvider>
       <Header />
       <FilterControls
         categoriesSelected={categoriesSelected}
@@ -51,7 +52,7 @@ export default function Home({ initialListings }) {
       {hasMore && <AppendData onClick={handleAppendClick} />}
       <Additional />
       <Footer />
-    </>
+    </AuthProvider>
   );
 }
 
