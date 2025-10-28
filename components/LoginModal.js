@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
 import styles from '../styles/Modals.module.css';
@@ -9,7 +9,6 @@ import { useAuth } from '../context/AuthContext';
 import { signIn, useSession } from "next-auth/react";
 
 
-// PhoneAuthModal
 export function PhoneAuthModal({ isOpen, onClose, onSubmit, title = 'Підтвердження номера' }) {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
