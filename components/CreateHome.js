@@ -1,12 +1,8 @@
-// FILE: pages/create-home.jsx
-// Next.js page: "Запропонувати житло"
-// Треба встановити залежності перед використанням:
-// npm install leaflet react-icons
-// (Leaflet CSS завантажується динамічно всередині компонента)
-
 import { useEffect, useRef, useState } from 'react';
-import Header from '../components/Header'; // припускаю, що такий компонент у вас вже є
+import Header from '../components/Header';
 import styles from '../styles/CreateHome.module.css';
+import SelectionModal from './SelectionModal';
+import WhoModal from './WhoModal';
 import {
   FiWifi,
   FiCloud,
@@ -18,21 +14,22 @@ import {
   FiHome,
   FiMapPin,
   FiUpload,
+  FiStar,
 } from 'react-icons/fi';
 
 const amenityMap = {
-  wifi: { title: 'Wi-Fi', icon: <FiWifi size={20} /> },
-  washer: { title: 'Пральна машина', icon: <FiCloud size={20} /> },
-  kitchen: { title: 'Кухня', icon: <FiCoffee size={20} /> },
-  airConditioning: { title: 'Кондиціонер', icon: <FiWind size={20} /> },
-  heating: { title: 'Опалення', icon: <FiSun size={20} /> },
-  tv: { title: 'Телевізор', icon: <FiTv size={20} /> },
-  parking: { title: 'Паркінг', icon: <FiTruck size={20} /> },
-  balcony: { title: 'Балкон', icon: <FiHome size={20} /> },
+  wifi: { title: 'Wi-Fi', icon: <FiWifi size={18} /> },
+  washer: { title: 'Пральна машина', icon: <FiCloud size={18} /> },
+  kitchen: { title: 'Кухня', icon: <FiCoffee size={18} /> },
+  airConditioning: { title: 'Кондиціонер', icon: <FiWind size={18} /> },
+  heating: { title: 'Опалення', icon: <FiSun size={18} /> },
+  tv: { title: 'Телевізор', icon: <FiTv size={18} /> },
+  parking: { title: 'Паркінг', icon: <FiTruck size={18} /> },
+  balcony: { title: 'Балкон', icon: <FiHome size={18} /> },
 };
 
 export default function CreateHomePage() {
-  const [coords, setCoords] = useState({ lat: 46.4825, lng: 30.7233 }); // приклад: Одеса
+  const [coords, setCoords] = useState({ lat: 46.4825, lng: 30.7233 });
   const [city, setCity] = useState('');
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [photos, setPhotos] = useState([]);
@@ -40,10 +37,28 @@ export default function CreateHomePage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reverseError, setReverseError] = useState(null);
+  const [pricePerNight, setPricePerNight] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selection, setSelection] = useState({ start: null, end: null });
+  const [who, setWho] = useState(null);
+  const [whoModalOpen, setWhoModalOpen] = useState(false);
+
+  const guestsLabel = who?.label || '1 гість';
+
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
-  // Автоматичне визначення геолокації при завантаженні
+  // refs для debounce/abort reverse geocode
+  const reverseAbortRef = useRef(null);
+  const reverseTimeoutRef = useRef(null);
+
+  // примерные значения для правой карточки (можете заменить на реальные)
+  const samplePrice = 85;
+  const sampleRating = 3.7;
+  const sampleReviews = 3;
+
+  // Геолокация при загрузке
   useEffect(() => {
     if (!('geolocation' in navigator)) return;
 
@@ -52,7 +67,8 @@ export default function CreateHomePage() {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         setCoords({ lat, lng });
-        reverseGeocode(lat, lng);
+        // при автопозиции — хочемо миттєвий зворотний геокод
+        reverseGeocode(lat, lng, true);
       },
       (err) => {
         console.warn('Геолокація відхилена або недоступна:', err.message);
@@ -60,29 +76,73 @@ export default function CreateHomePage() {
     );
   }, []);
 
-  // Reverse geocoding via Nominatim (OpenStreetMap)
-  async function reverseGeocode(lat, lon) {
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`
-      );
-      if (!res.ok) return;
-      const data = await res.json();
-      // спробуємо витягти місто або населений пункт
-      const cityName = data.address.city || data.address.town || data.address.village || data.address.county || data.address.state;
-      if (cityName) setCity(cityName);
-    } catch (e) {
-      console.error('Помилка reverse geocode', e);
+  // Debounced + cancellable reverse geocode
+  // immediate=true — виконати без debounce (для початкової автопозиції)
+  async function reverseGeocode(lat, lon, immediate = false) {
+    // очистити попереднi таймери/запити
+    if (reverseTimeoutRef.current) {
+      clearTimeout(reverseTimeoutRef.current);
+      reverseTimeoutRef.current = null;
+    }
+    if (reverseAbortRef.current) {
+      reverseAbortRef.current.abort();
+      reverseAbortRef.current = null;
+    }
+
+    const doFetch = async () => {
+      const ac = new AbortController();
+      reverseAbortRef.current = ac;
+      setReverseError(null);
+      try {
+        // НОМИНАТИМ має rate limit; мы используем debounce + отмену чтобы не попадать под него.
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&accept-language=uk`;
+        const res = await fetch(url, {
+          signal: ac.signal,
+          headers: {
+            // нельзя заменить User-Agent в браузере, но Accept полезен
+            Accept: 'application/json',
+          },
+        });
+        if (!res.ok) {
+          setReverseError(`Reverse geocode failed: ${res.status}`);
+          console.warn('Reverse geocode failed', res.status);
+          return;
+        }
+        const data = await res.json();
+        const addr = data.address || {};
+        const cityName = addr.city || addr.town || addr.village || addr.county || addr.state || '';
+        if (cityName) setCity(cityName);
+      } catch (e) {
+        if (e.name === 'AbortError') {
+          // expected on rapid interactions
+          // console.log('reverseGeocode aborted');
+        } else {
+          console.error(' Помилка reverse geocode:', e);
+          setReverseError('Помилка визначення міста');
+        }
+      } finally {
+        reverseAbortRef.current = null;
+      }
+    };
+
+    if (immediate) {
+      // невідкладно
+      doFetch();
+    } else {
+      // debounce — 900ms пауза між викликами
+      reverseTimeoutRef.current = setTimeout(doFetch, 900);
     }
   }
 
-  // Inicjalizacja Leaflet map (без react-leaflet) — динамічно завантажуємо leaflet
+  // Инициализация leaflet (динамически)
   useEffect(() => {
     let L;
     let map;
+    let mounted = true;
 
     async function initMap() {
-      // завантажуємо leaflet CSS
+      if (!mounted) return;
+      // подключаем CSS один раз
       if (!document.querySelector('#leaflet-css')) {
         const link = document.createElement('link');
         link.id = 'leaflet-css';
@@ -94,7 +154,7 @@ export default function CreateHomePage() {
       const leaflet = await import('leaflet');
       L = leaflet.default || leaflet;
 
-      // виправлення шляху до іконок у leaflet (якщо потрібно)
+      // fix default icons path
       delete L.Icon.Default.prototype._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png',
@@ -108,13 +168,13 @@ export default function CreateHomePage() {
         attribution: '&copy; OpenStreetMap contributors',
       }).addTo(map);
 
-      // marker
       markerRef.current = L.marker([coords.lat, coords.lng], { draggable: true }).addTo(map);
 
       map.on('click', function (e) {
         const { lat, lng } = e.latlng;
         setCoords({ lat, lng });
-        markerRef.current.setLatLng(e.latlng);
+        if (markerRef.current) markerRef.current.setLatLng(e.latlng);
+        // debounce reverse geocode (не відправляти мільйон запитів)
         reverseGeocode(lat, lng);
       });
 
@@ -129,22 +189,34 @@ export default function CreateHomePage() {
 
     initMap();
 
-    // оновлювати позицію маркера коли coords змінюються ззовні
     return () => {
+      mounted = false;
+      // remove map if exists
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
+      // cancel pending reverse geocode
+      if (reverseTimeoutRef.current) {
+        clearTimeout(reverseTimeoutRef.current);
+        reverseTimeoutRef.current = null;
+      }
+      if (reverseAbortRef.current) {
+        reverseAbortRef.current.abort();
+        reverseAbortRef.current = null;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // init once
 
-  // Оновлюємо вид маркера, якщо координати змінюються через геолокацію
+  // обновляем маркер/вид когда coords изменяются извне (например геолокация)
   useEffect(() => {
     try {
       if (markerRef.current) markerRef.current.setLatLng([coords.lat, coords.lng]);
       if (mapRef.current) mapRef.current.setView([coords.lat, coords.lng], 13);
-    } catch (e) {}
+    } catch (e) {
+      // ignore
+    }
   }, [coords]);
 
   function toggleAmenity(key) {
@@ -165,7 +237,6 @@ export default function CreateHomePage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Підготовка payload — тут можна відправити на ваш API
     const payload = {
       title,
       description,
@@ -173,11 +244,10 @@ export default function CreateHomePage() {
       city,
       amenities: selectedAmenities,
       photos: photos.map((p) => p.name),
+      pricePerNight
     };
 
-    // Для демо просто лог
     console.log('Payload ready:', payload);
-    // якщо потрібна відправка файлів, створіть FormData і відправте
 
     setTimeout(() => {
       setIsSubmitting(false);
@@ -186,13 +256,17 @@ export default function CreateHomePage() {
   }
 
   return (
+    <>
     <div className={styles.pageRoot}>
       <Header />
 
       <main className={styles.container}>
         <h1 className={styles.title}>Запропонувати житло</h1>
 
+        
         <form className={styles.form} onSubmit={handleSubmit}>
+          
+
           <section className={styles.leftColumn}>
             <label className={styles.label}>Назва оголошення</label>
             <input className={styles.input} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Наприклад: Затишна квартира в центрі" />
@@ -208,6 +282,7 @@ export default function CreateHomePage() {
                 <div className={styles.coordsItem}>Місто: <strong>{city || 'Невідомо'}</strong></div>
               </div>
               <small className={styles.hint}>Клацніть по мапі або перетягніть маркер, щоб вибрати точну позицію.</small>
+              {reverseError && <div className={styles.reverseError}>⚠️ {reverseError}</div>}
             </div>
 
             <label className={styles.label}>Зручності</label>
@@ -245,10 +320,58 @@ export default function CreateHomePage() {
 
           <aside className={styles.rightColumn}>
             <div className={styles.card}>
+              <div className={styles.cardTop}>
+                <div className={styles.cardTop}>
+                  <div className={styles.priceInputWrap}>
+                    <span className={styles.currency}>$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={pricePerNight}
+                      onChange={(e) => setPricePerNight(Number(e.target.value))}
+                      className={styles.priceInput}
+                      aria-label="Ціна за ніч"
+                    />
+                    <span className={styles.priceSuffix}>/ ніч</span>
+                  </div>
+
+                </div>
+              </div>
+
               <h3 className={styles.cardTitle}>Перевірте локацію та фото</h3>
+
               <div className={styles.cardRow}><strong>Місто:</strong> {city || 'не визначено'}</div>
               <div className={styles.cardRow}><strong>Координати:</strong> {coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}</div>
               <div className={styles.cardRow}><strong>Вибрані зручності:</strong> {selectedAmenities.length ? selectedAmenities.map(k => amenityMap[k].title).join(', ') : 'не вибрано'}</div>
+
+              <div className={styles.bookingFields}>
+                <div className={styles.fieldRow}>
+                  <label className={styles.smallLabel}>Вільні дати</label>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    className={styles.inputBox}
+                    onClick={() => setModalOpen(true)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setModalOpen(true); }}
+                  >
+                    {selection.start ? `${new Date(selection.start).toLocaleDateString('uk-UA')} - ${new Date(selection.end).toLocaleDateString('uk-UA')}`  : 'Оберіть'}
+                  </div>
+                </div>
+
+<div className={styles.fieldRow}>
+                <label className={styles.smallLabel}>Гості</label>
+                <div
+                role="button"
+                tabIndex={0}
+                className={styles.inputBox}
+                style={{ gridColumn: 'span 2' }}
+                onClick={() => setWhoModalOpen(true)}
+              >
+                {guestsLabel}
+              </div>
+              </div>
+              </div>
 
               <button className={styles.submitBtn} type="submit" disabled={isSubmitting}>{isSubmitting ? 'Відправка...' : 'Запропонувати житло'}</button>
 
@@ -258,17 +381,24 @@ export default function CreateHomePage() {
         </form>
       </main>
     </div>
+
+      <SelectionModal
+              isOpen={modalOpen}
+              onClose={() => setModalOpen(false)}
+              initialRange={selection}
+              onSave={(range) => setSelection(range)}
+            />
+
+      <WhoModal
+              isOpen={whoModalOpen}
+              onClose={() => setWhoModalOpen(false)}
+              initialWho={who}
+              onSave={(payload) => {
+                setWho(payload);
+                setWhoModalOpen(false);
+              }}
+            />
+        
+        </>
   );
 }
-
-/*
-  Примітка:
-  - Файл використовує leaflet, тому потрібно додати пакет leaflet: npm i leaflet
-  - Header компонент імпортується як ../components/Header — змініть шлях якщо потрібно
-  - Reverse geocoding йде на nominatim.openstreetmap.org — без API ключа.
-*/
-
-
-/* -------------------------------------------------------------------------- */
-/* FILE: styles/CreateHome.module.css                                              */
-/* Помістіть цей CSS у файл: ../styles/CreateHome.module.css                    */
