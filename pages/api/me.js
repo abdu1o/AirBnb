@@ -1,4 +1,6 @@
+import clientPromise from '../../lib/mongodb';
 import jwt from 'jsonwebtoken';
+import { ObjectId } from 'mongodb';
 
 export default async function handler(req, res) {
   const token = req.cookies.token;
@@ -8,11 +10,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    const secret = process.env.JWT_SECRET;
-    const decoded = jwt.verify(token, secret);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
 
-    return res.status(200).json({ user: decoded });
+    const client = await clientPromise;
+    const db = client.db('airbnb');
+
+    const user = await db.collection('users').findOne(
+      { _id: new ObjectId(userId) },
+      { projection: { password: 0 } }
+    );
+
+    if (!user) {
+      return res.status(404).json({ user: null, error: 'Користувача не знайдено' });
+    }
+
+    return res.status(200).json({ user });
   } catch (err) {
-    return res.status(401).json({ user: null });
+    console.error('Помилка при отриманні користувача:', err);
+    return res.status(401).json({ user: null, error: 'Невірний токен або користувач не знайдений' });
   }
 }
