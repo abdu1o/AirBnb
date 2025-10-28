@@ -181,7 +181,7 @@
   position: absolute;
   left: 12%;                      /* отступы по бокам — регулируйте */
   right: 12%;
-  bottom: 6px;                    /* чуть выше края, под текстом */
+  bottom: 3px;                    /* чуть выше края, под текстом */
   height: 3px;                    /* толщина линии */
   border-radius: 2px;
   background: transparent;

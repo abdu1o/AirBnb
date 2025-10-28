@@ -1,20 +1,42 @@
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import styles from '../styles/Home.module.css';
-
-// Импортируй свои модалы — путь может отличаться
 import { RegisterModal, LoginModal } from '../components/LoginModal';
+import { Toaster, toast } from 'react-hot-toast';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
-  // auth state — по умолчанию false
   const [isLogged, setIsLogged] = useState(false);
+  const [user, setUser] = useState(null);
 
-  // control modals
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/me');
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user) {
+            setIsLogged(true);
+            setUser(data.user);
+          } else {
+            setIsLogged(false);
+          }
+        } else {
+          setIsLogged(false);
+        }
+      } catch (err) {
+        console.error('Помилка перевірки авторизації:', err);
+        setIsLogged(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     function onKey(e) {
@@ -41,23 +63,43 @@ export default function Header() {
   //   window.location.href('/create');
   // };
 
+  const handleOfferClick = () => {
+    if (!isLogged) {
+      setShowRegister(true);
+      return;
+    }
+    window.location.href = '/offer';
+  };
+
   const handleProfileClick = (e) => {
     if (!isLogged) {
       e.preventDefault && e.preventDefault();
       setShowRegister(true);
       return;
     }
-    // при isLogged === true — обычный переход по Link будет срабатывать
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+      toast.success('Ви вийшли з акаунту');
+      setIsLogged(false);
+      setUser(null);
+    } catch (err) {
+      console.error('Logout error:', err);
+      toast.error('Помилка при виході');
+    }
   };
 
   return (
     <>
+      <Toaster position="top-right" reverseOrder={false} />
+
       <header className={styles.header} ref={menuRef}>
         <Link href="/" className={styles.logo}>
           AirBNB
         </Link>
 
-        {/* Desktop nav (hidden on small screens) */}
         <nav className={styles.nav}>
           <Link href="/">Варіанти помешкань</Link>
           <Link href="/">Враження</Link>
@@ -70,7 +112,6 @@ export default function Header() {
             Запропонувати житло
           </Link>
 
-          {/* Burger button (visible on small screens) */}
           <button
             className={styles.burger}
             aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
@@ -78,12 +119,12 @@ export default function Header() {
             onClick={() => setOpen((s) => !s)}
           >
             {open ? (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 <path d="M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             ) : (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path d="M3 6H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 <path d="M3 12H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 <path d="M3 18H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -91,19 +132,24 @@ export default function Header() {
             )}
           </button>
 
-          {/* Профиль: если залогинен — обычный Link, иначе кнопка открывающая модал */}
+          {/* 👇 Проверка залогиненности */}
           {isLogged ? (
-            <Link href="/profile" className={styles.profileLink}>
-              <img src="/icons/user.svg" alt="user" />
-            </Link>
+            <div className={styles.userMenu}>
+              <Link href="/profile" className={styles.profileLink}>
+                <img src="/icons/user.svg" alt="user" />
+              </Link>
+            </div>
           ) : (
-            <button className={styles.profileLink} onClick={handleProfileClick} aria-label="Открыть авторизацию">
+            <button
+              className={styles.profileLink}
+              onClick={handleProfileClick}
+              aria-label="Открыть авторизацию"
+            >
               <img src="/icons/user.svg" alt="user" />
             </button>
           )}
         </div>
 
-        {/* Mobile menu (slides down) */}
         <div className={`${styles.mobileNav} ${open ? styles.open : ''}`} role="menu">
           <Link href="/" className={styles.mobileLink} onClick={() => setOpen(false)}>Варіанти помешкань</Link>
           <Link href="/" className={styles.mobileLink} onClick={() => setOpen(false)}>Враження</Link>
@@ -111,25 +157,30 @@ export default function Header() {
 
           {/* Mobile offer: если не залогинен — открыть модал */}
           <Link href='/create' className={styles.mobileLink}>
+
             Запропонувати житло
           </Link>
         </div>
       </header>
 
-      {/* Modals */}
+      {/* Модалки */}
       <RegisterModal
         isOpen={showRegister}
         onClose={() => setShowRegister(false)}
-        onOpenLogin={() => { setShowRegister(false); setShowLogin(true); }}
+        onOpenLogin={() => {
+          setShowRegister(false);
+          setShowLogin(true);
+        }}
       />
 
       <LoginModal
         isOpen={showLogin}
         onClose={() => setShowLogin(false)}
         onLogin={(info) => {
-          console.log('Logged in from header:', info);
           setIsLogged(true);
+          setUser(info);
           setShowLogin(false);
+          toast.success('Успішний вхід');
         }}
       />
     </>
