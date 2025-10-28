@@ -6,6 +6,8 @@ import regStyles from '../styles/Register.module.css';
 import { FaGoogle } from "react-icons/fa";
 import toast, { Toaster } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import { signIn, useSession } from "next-auth/react";
+
 
 // PhoneAuthModal
 export function PhoneAuthModal({ isOpen, onClose, onSubmit, title = 'Підтвердження номера' }) {
@@ -158,8 +160,7 @@ export function RegisterPhoneModal({ isOpen, onClose, onContinue }) {
 }
 
 // RegisterModal (updated layout: primary register button centered, blue; below it - login blue button; then 'или' and social/phone buttons)
-export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
-  const { setUser } = useAuth();
+export function RegisterModal({ isOpen, onClose, onOpenLogin }) {
   const [email, setEmail] = useState('');
   const [name, setDisplayName] = useState('');
   const [dob, setDob] = useState('');
@@ -205,14 +206,12 @@ export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
 
     setIsSubmitting(true);
 
-    const payload = { email, name, dob, phone, password };
-
     try {
+      // Создаём пользователя через свой API
       const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include',
+        body: JSON.stringify({ email, name, dob, phone, password, avatarUrl: '', description: '' }),
       });
 
       const data = await res.json();
@@ -222,18 +221,21 @@ export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
       } else {
         toast.success('Реєстрація успішна!');
 
-        setUser(data.user);
+        // Логиним пользователя через NextAuth CredentialsProvider
+        await signIn('credentials', {
+          redirect: true,
+          email,
+          password,
+          callbackUrl: '/',
+        });
 
+        // Очистка формы
         setEmail('');
         setDisplayName('');
         setDob('');
         setPhone('');
         setPassword('');
         setConfirm('');
-
-        setTimeout(() => {
-          onClose && onClose();
-        }, 1000);
       }
     } catch (err) {
       console.error('Fetch error:', err);
@@ -243,13 +245,9 @@ export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
     }
   };
 
-  const handleGoogleRegister = () => {
-    toast('Реєстрація через Google...');
-    setTimeout(() => {
-      toast.success('Успішний вхід через Google!');
-      onClose && onClose();
-      onOpenPhone && onOpenPhone();
-    }, 600);
+  const handleGoogleRegister = async () => {
+    // Переход на Google OAuth
+    await signIn('google', { callbackUrl: '/' });
   };
 
   const inputStyle = { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.12)' };
@@ -257,7 +255,7 @@ export function RegisterModal({ isOpen, onClose, onOpenLogin, onOpenPhone }) {
 
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster position="top-right" />
       <div className={styles.overlay} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose && onClose(); }}>
         <div className={regStyles.regmodal} onMouseDown={(e) => e.stopPropagation()}>
           <button className={styles.closeButton} onClick={() => onClose && onClose()}>✕</button>

@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     }
 } else if (req.method === 'POST') {
   try {
-    const { email, phone, password, name, dob } = req.body;
+    const { email, phone, password, name, dob, avatarUrl = '', description = '' } = req.body;
 
     const exists = await db.collection('users').findOne({
       $or: [{ email }, { phone }],
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await db.collection('users').insertOne({ email, phone, name, dob, password: hashedPassword });
+    const result = await db.collection('users').insertOne({ email, phone, name, dob, password: hashedPassword, avatarUrl, description });
     res.status(201).json({ id: result.insertedId });
   } catch (err) {
     console.error(err);

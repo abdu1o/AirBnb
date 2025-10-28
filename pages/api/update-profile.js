@@ -17,19 +17,24 @@ export default async function handler(req, res) {
     const client = await clientPromise;
     const db = client.db("airbnb");
 
-    const { email, phone } = req.body;
+    const { email, phone, description } = req.body;
 
-    if (!email || !phone) {
-      return res.status(400).json({ error: "Потрібно передати email і телефон" });
+    const updateFields = {};
+    if (email) updateFields.email = email;
+    if (phone) updateFields.phone = phone;
+    if (description !== undefined) updateFields.description = description;
+
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ error: "Немає даних для оновлення" });
     }
 
     const updateResult = await db.collection("users").updateOne(
       { _id: new ObjectId(userId) },
-      { $set: { email, phone } }
+      { $set: updateFields }
     );
 
-    if (updateResult.modifiedCount === 0) {
-      return res.status(400).json({ error: "Дані не оновлено" });
+    if (updateResult.matchedCount === 0) {
+      return res.status(404).json({ error: "Користувача не знайдено" });
     }
 
     const updatedUser = await db.collection("users").findOne({ _id: new ObjectId(userId) });

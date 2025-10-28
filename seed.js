@@ -26,7 +26,8 @@ async function seed() {
         password: 'qwe123',
         phone: '+380123456789',
         avatarUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/users/user1.png',
-        dob: '1990-05-12'
+        dob: '1990-05-12',
+        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Mauris euismod, nisl vel tincidunt tempor, nisl nisl aliquet nisl, vitae aliquet nisl nisl eu nisl.'
       },
       { 
         name: 'Alice Smith', 
@@ -34,7 +35,8 @@ async function seed() {
         password: 'zxc123',
         phone: '+380501234567',
         avatarUrl: 'https://airbnb-bucket666.s3.eu-north-1.amazonaws.com/users/user2.png',
-        dob: '1995-08-22'
+        dob: '1995-08-22',
+        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Mauris euismod, nisl vel tincidunt tempor, nisl nisl aliquet nisl, vitae aliquet nisl nisl eu nisl.'
       }
     ];
     
