@@ -31,15 +31,15 @@ export default function Header() {
     };
   }, []);
 
-  // handlers for auth-required actions
-  const handleOfferClick = () => {
-    if (!isLogged) {
-      setShowRegister(true); // если не залогинен — открыть реєстрацію
-      return;
-    }
-    // если залогинен — переход на страницу предложения (можно заменить на Link)
-    window.location.href = '/offer';
-  };
+  // // handlers for auth-required actions
+  // const handleOfferClick = () => {
+  //   if (isLogged) {
+  //     setShowRegister(true); // если не залогинен — открыть реєстрацію
+  //     return;
+  //   }
+  //   // если залогинен — переход на страницу предложения
+  //   window.location.href('/create');
+  // };
 
   const handleProfileClick = (e) => {
     if (!isLogged) {
@@ -65,10 +65,10 @@ export default function Header() {
         </nav>
 
         <div className={styles.actions}>
-          {/* Если залогинен — можно перейти, иначе открыть модал */}
-          <button className={styles.offer} onClick={handleOfferClick}>
+          {/* Если залогинен — можно перейти, иначе открыть модал onClick={handleOfferClick}>*/ }
+          <Link href='/create' className={styles.offer}>
             Запропонувати житло
-          </button>
+          </Link>
 
           {/* Burger button (visible on small screens) */}
           <button
@@ -110,16 +110,9 @@ export default function Header() {
           <Link href="/" className={styles.mobileLink} onClick={() => setOpen(false)}>Онлайн-враження</Link>
 
           {/* Mobile offer: если не залогинен — открыть модал */}
-          <button
-            className={styles.mobileOffer}
-            onClick={() => {
-              setOpen(false);
-              if (!isLogged) setShowRegister(true);
-              else window.location.href = '/offer';
-            }}
-          >
+          <Link href='/create' className={styles.mobileLink}>
             Запропонувати житло
-          </button>
+          </Link>
         </div>
       </header>
 
