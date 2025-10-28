@@ -1,0 +1,60 @@
+.pageRoot {
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1180px;
+  margin: 28px auto;
+  padding: 0 20px 80px;
+}
+
+.title {
+  font-size: 28px;
+  margin: 10px 0 18px;
+  font-weight: 700;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 28px;
+  align-items: start;
+}
+
+.leftColumn {
+  background: transparent;
+}
+
+.rightColumn {
+  position: sticky;
+  top: 90px;
+}
+
+.label {
+  display: block;
+  margin: 12px 0 6px;
+  color: #222;
+  font-weight: 600;
+}
+
+.input, .textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #e3dedb;
+  background: white;
+}
+
+.textarea { min-height: 120px; resize: vertical; }
+
+.mapBlock { margin-top: 8px; border-radius: 12px; overflow: hidden; border: 1px solid #e6e0dc; }
+.map { width: 100%; height: 320px; }
+.coordsRow { display:flex; gap:12px; padding: 8px 12px; align-items:center; background: #fcfbfa; border-top: 1px solid #eee; }
+.coordsItem { font-size: 14px; color: var(--muted); display:flex; gap:8px; align-items:center; }
+.hint { display:block; padding:10px 12px; color: var(--muted); }
+
+.amenitiesGrid { display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:10px; margin-top:10px; }
+.amenityBtn { display:flex; align-items:center; gap:10px; padding:10px; border-radius:10px; border:1px solid #ebe4e0; background:white; cursor:pointer; }
+.amenityActive { background: linear-gradient(90deg, rgba(0, 120, 255, .12), #ffff)}

@@ -1,15 +1,4 @@
-:root {
-  --gallery-height: 420px; /* или 360px, или 480px — на твой вкус */
-  --page-max-width: 1180px;
-  --page-padding: 16px;
-}
 
-/* global box-sizing safe for CSS Modules */
-:global(*),
-:global(*::before),
-:global(*::after) {
-  box-sizing: border-box;
-}
 
 /* page */
 .page {

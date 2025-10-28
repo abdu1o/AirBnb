@@ -53,6 +53,16 @@ export default function Header() {
     };
   }, []);
 
+  // // handlers for auth-required actions
+  // const handleOfferClick = () => {
+  //   if (isLogged) {
+  //     setShowRegister(true); // если не залогинен — открыть реєстрацію
+  //     return;
+  //   }
+  //   // если залогинен — переход на страницу предложения
+  //   window.location.href('/create');
+  // };
+
   const handleOfferClick = () => {
     if (!isLogged) {
       setShowRegister(true);
@@ -97,9 +107,10 @@ export default function Header() {
         </nav>
 
         <div className={styles.actions}>
-          <button className={styles.offer} onClick={handleOfferClick}>
+          {/* Если залогинен — можно перейти, иначе открыть модал onClick={handleOfferClick}>*/ }
+          <Link href='/create' className={styles.offer}>
             Запропонувати житло
-          </button>
+          </Link>
 
           <button
             className={styles.burger}
@@ -140,25 +151,15 @@ export default function Header() {
         </div>
 
         <div className={`${styles.mobileNav} ${open ? styles.open : ''}`} role="menu">
-          <Link href="/" className={styles.mobileLink} onClick={() => setOpen(false)}>
-            Варіанти помешкань
-          </Link>
-          <Link href="/" className={styles.mobileLink} onClick={() => setOpen(false)}>
-            Враження
-          </Link>
-          <Link href="/" className={styles.mobileLink} onClick={() => setOpen(false)}>
-            Онлайн-враження
-          </Link>
-          <button
-            className={styles.mobileOffer}
-            onClick={() => {
-              setOpen(false);
-              if (!isLogged) setShowRegister(true);
-              else window.location.href = '/offer';
-            }}
-          >
+          <Link href="/" className={styles.mobileLink} onClick={() => setOpen(false)}>Варіанти помешкань</Link>
+          <Link href="/" className={styles.mobileLink} onClick={() => setOpen(false)}>Враження</Link>
+          <Link href="/" className={styles.mobileLink} onClick={() => setOpen(false)}>Онлайн-враження</Link>
+
+          {/* Mobile offer: если не залогинен — открыть модал */}
+          <Link href='/create' className={styles.mobileLink}>
+
             Запропонувати житло
-          </button>
+          </Link>
         </div>
       </header>
 

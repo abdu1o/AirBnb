@@ -7,7 +7,7 @@ const OPTIONS = [
   { key: 'adults', title: 'Дорослі', hint: 'Вік: від 13 р.' },
   { key: 'children', title: 'Діти', hint: 'Вік: 2–12 р.' },
   { key: 'infants', title: 'Немовлята', hint: 'До 2 р.' },
-  { key: 'pets', title: 'Домашні тварини' },
+  { key: 'pets', title: 'Домашні тварини', hint: 'Будь-яких розмірів' },
 ];
 
 export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
@@ -91,7 +91,7 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
             {/* Adults */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ minWidth: 90 }} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 12 }}>
                 <button onClick={decAdults} className={styles.chip} style={{ padding: '6px 10px' }}>−</button>
                 <div className={styles.countDisplay} style={{ minWidth: 36, textAlign: 'center', fontWeight: 600 }}>{adults}</div>
                 <button onClick={() => inc(setAdults, adults)} className={styles.chip} style={{ padding: '6px 10px' }}>+</button>
@@ -101,7 +101,7 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
             {/* Children */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ minWidth: 90 }} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 12 }}>
                 <button onClick={() => dec(setChildren, children)} className={styles.chip} style={{ padding: '6px 10px' }}>−</button>
                 <div className={styles.countDisplay}>{children}</div>
                 <button onClick={() => inc(setChildren, children)} className={styles.chip} style={{ padding: '6px 10px' }}>+</button>
@@ -111,7 +111,7 @@ export default function WhoModal({ isOpen, onClose, initialWho, onSave }) {
             {/* Infants */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ minWidth: 90 }} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 12 }}>
                 <button onClick={() => dec(setInfants, infants)} className={styles.chip} style={{ padding: '6px 10px' }}>−</button>
                 <div className={styles.countDisplay}>{infants}</div>
                 <button onClick={() => inc(setInfants, infants)} className={styles.chip} style={{ padding: '6px 10px' }}>+</button>
